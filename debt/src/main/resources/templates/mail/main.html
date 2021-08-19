@@ -1,0 +1,586 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link th:href="@{/jquery/bootstrap_3.3.0/css/bootstrap.min.css}" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" th:src="@{/jquery/jquery-1.11.1-min.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery/bootstrap_3.3.0/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/xlPaging.js}"></script>
+
+    <link th:href="@{/jquery/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css}" type="text/css" rel="stylesheet" />
+
+
+
+    <script type="text/javascript" th:src="@{/jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js}"></script>
+    <style>
+
+        #page {
+            margin: 20px auto;
+            color: #666;
+            display: block;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        #page li {
+            display: inline-block;
+            min-width: 50px;
+            height: 30px;
+            cursor: pointer;
+            color: #666;
+            font-size: 13px;
+            line-height: 28px;
+            background-color: #f9f9f9;
+            border: 1px solid #dce0e0;
+            text-align: center;
+            margin: 0 4px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            border-radius: 2px;
+            position: relative;
+            left: -430px;
+            bottom: -10px;
+        }
+
+        .xl-nextPage,
+        .xl-prevPage {
+            width: 60px;
+            color: #418ac8FF;
+            height: 28px;
+        }
+
+        #page li.xl-disabled {
+            opacity: .5;
+            cursor: no-drop;
+        }
+
+        #page li.xl-disabled:hover{
+            background-color: #f9f9f9 !important;
+            border: 1px solid #dce0e0 !important;
+            color: #666 !important;
+        }
+
+        #page li.xl-active {
+            background-color: #418ac8FF;
+            border-color: #418ac8FF;
+            color: #FFF
+        }
+
+        #page li:hover{
+            background-color: #418ac8FF !important;
+            border-color: #418ac8FF;
+            color: #FFF
+        }
+
+        #page li.xl-jumpText {
+            background-color: rgba(0,0,0,0);
+            border-color: rgba(0,0,0,0);
+            opacity: 1;
+        }
+
+        #page li.xl-jumpText:hover{
+            background-color: rgba(0,0,0,0) !important;
+            border-color: rgba(0,0,0,0) !important;
+        }
+
+        #page li.xl-jumpButton{
+            padding: 0 5px;
+        }
+
+        #xlJumpNum {
+            width: 35px;
+            margin: 0 3px;
+        }
+        input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{
+            -webkit-appearance: none !important;
+        }
+        input[type="number"]{
+            -moz-appearance:textfield;
+        }
+    </style>
+    <script type="text/javascript" th:inline="javascript">
+        
+        function likeQueryMail() {
+            var text=$("#likeQuery").val();
+            if(text===""){
+                alert("输入内容不得为空！")
+                return;
+            }
+            $.ajax({
+                url:[[${#request.getContextPath()}]]+"/mail/likeQuery",
+                type:"get",
+                data:{
+                    "text":text
+                },
+                success:function (data) {
+                    html1=""
+                    var path=[[${#request.getContextPath()}]];
+                    var count=0
+                    $.each(data,function (i,n) {
+                        var number=i+1
+                        $("#tb").html("")
+                        html1+='<tr id="T" >'
+                        html1+="<td class='lsit'><input type='checkbox' value='"+n.id+"' onclick='selectMail(this)'></td>"
+                        html1+='<td class="lsit">'+number+'</td>';
+                        html1+='<td class="lsit" >'+n.title+'</td >'
+                        html1+=' <td class="lsit" >'+n.resourceName+'</td>'
+                        html1+='<td class="lsit" >'+n.time+'</td>'
+                        html1+='<td class="lsit" >'+n.state+'</td>';
+                        html1+='<td class="lsit" style="display: none"  ><a href="'+path+'/mail/detail?mailId='+n.id+'"></a></td>'
+                        html1+='</tr>'
+                        count++
+
+
+                    })
+                    $("#mailState").css("display","block")
+
+                    $("#tb").html(html1)
+                }
+            })
+        }
+
+    function showMailAsUser() {
+            var flag=$("#mailAsUser").css("display")
+            if(flag==="block"){
+                var doms=$(".userList input:checked")
+                var users=""
+                for(i=0;i<doms.length;i++){
+                    users+=$(doms[i]).parent().text()+" ;"
+                }
+                $("#asUserInput").val(users)
+                $("#mailAsUser").css("display","none")
+            }else{
+                $("#mailAsUser").css("display","block")
+            }
+
+        }
+
+    $(function () {
+            var pagesize=10;
+            var noteCount=[[${mailCount}]]
+            var allPageNumber=0
+            if ((noteCount%pagesize)!==0){
+                allPageNumber=noteCount/pagesize+1;
+            }else{
+
+                allPageNumber=noteCount/pagesize;
+            }
+            let xlPaging =new Paging('page', {
+                nowPage: 1, // 当前页码
+                pageNum: allPageNumber, // 总页码
+                buttonNum: 10, //要展示的页码数量
+                canJump: 0,// 是否能跳转。0=不显示（默认），1=显示
+                showOne: 1,//只有一页时，是否显示。0=不显示,1=显示（默认）
+                callback: function (num) { //回调函数
+                    pageQuery(pagesize,num)
+                    console.log(num);
+
+                }
+            })
+            pageQuery(10,1)
+            $("#tb").on("mouseover","tr",function () {
+                $(this).css("color","blue")
+                $(this).css("text-decoration","underline")
+                $(this).css("cursor","pointer")
+
+            })
+            $("#tb").on("mouseout","tr",function () {
+                $(this).css("color","black")
+                $(this).css("text-decoration","none")
+            })
+            $("#selectAll").click(function () {
+                var flag=$(this).prop("checked")
+                $("#T td input").prop("checked",flag)
+            })
+            $("#tb").on("click","tr .lsit",function () {
+
+                var index=$(this).index();
+                if(index===0){
+                    return;
+                }
+
+                var dom=$(this).parent().find("a").get(0)
+                dom.click()
+            })
+
+        })
+        //分页查询
+        function pageQuery(pageSize,pageNumber) {
+            $.ajax({
+                url:[[${#request.getContextPath()}]]+"/mail/pageQuery",
+                type:"get",
+                data:{
+                    "pageSize":pageSize,
+                    "pageNumber":pageNumber
+                },
+                dataType:"json",
+                success:function (data) {
+                    html1=""
+                    var path=[[${#request.getContextPath()}]];
+                    $.each(data,function (i,n) {
+                        var number=i+1
+                        $("#tb").html("")
+                        html1+='<tr id="T" >'
+                        html1+="<td class='lsit'><input type='checkbox' value='"+n.id+"' onclick='selectMail(this)'></td>"
+                        html1+='<td class="lsit">'+number+'</td>';
+                        html1+='<td class="lsit" >'+n.title+'</td >'
+                        html1+=' <td class="lsit" >'+n.resourceName+'</td>'
+                        html1+='<td class="lsit" >'+n.time+'</td>'
+                        html1+='<td class="lsit" >'+n.state+'</td>';
+                        html1+='<td class="lsit" style="display: none"  ><a href="'+path+'/mail/detail?mailId='+n.id+'"></a></td>'
+                        html1+='</tr>'
+
+
+
+                    })
+                    $("#mailState").css("display","block")
+                    $("#tb").html(html1)
+                }
+            })
+            $("#deleteBtn").click(function () {
+                var count=0;
+                var dom=$("#tb .lsit input:checked")
+                if(dom.length===0){
+                    alert("请选择需要删除的邮件")
+                    $("#deleteModal").modal("hide")
+                    return
+                }
+                for(i=0;i<dom.length;i++){
+                    $.ajax({
+                        url:[[${#request.getContextPath()}]]+"/userMailRelationship/delete",
+                        type:"get",
+                        data:{
+                            "mailId":dom[i].value
+                        },
+                        success:function (data) {
+                            location.reload()
+                            //为总邮件条数更新
+
+                            $("#deleteModal").modal("hide")
+
+                        }
+                    })
+                }
+
+
+
+            })
+        }
+        function selectMail(obj) {
+            var flag=true;
+            var doms=$(".lsit input")
+            for(i=0;i<doms.length;i++){
+                domFlag=$(doms[i]).prop("checked")
+                if(domFlag===false){
+                    flag=false
+                }
+            }
+            $("#selectAll").prop("checked",flag)
+        }
+        function deleteModal() {
+            $("#deleteModal").modal("show")
+        }
+        function openAddModal(){
+            $("#asUserInput").val("")
+            $("#mailText").val("")
+            $("#inputPassword3").val("")
+            $("#file").val("")
+            $.ajax({
+                url:[[${#request.getContextPath()}]]+"/mail/getMailAsUser",
+                type:"get",
+                dataType: "json",
+                success:function (data) {
+                    html=""
+                    html+="<div>"
+                    $.each(data,function (i,n) {
+                        html+='<div >'
+                        html+='<input type="checkbox" onclick="selectDeptUser(this)">'
+                        html+='<h5 style="display: inline" onmouseout="h5mouseout(this)" onmouseover="h5mouseover(this)" onClick = "showUl(this)" >+'+n.dept+'</h5>'
+                        html+='<ul class="userList" style="display: none;list-style: none">'
+                        $.each(n.user,function (j,k) {
+                            html+='<li><input type="checkbox" value="'+k.id+'">'+k.name+'</li>'
+                        })
+                        html+='</ul>'
+                        html+='</div>'
+                    })
+                    html+='<button type="button" onclick="selectAsUserBtn()" style="width: 50px;height: 20px;margin-right: 10px"  >确定</button>'
+                    html+="</div>"
+
+                    $("#mailAsUser").html(html)
+                    $("#addModal").modal("show")
+
+                }
+            })
+
+        }
+        function showUl(obj){
+            var flag=$(obj).next().css("display")
+            if (flag==="block"){
+                $(obj).next().css("display","none")
+            }else{
+               $(obj).next().css("display","block")
+                
+            }
+        }
+        function selectDeptUser(obj) {
+            var flag=$(obj).prop("checked")
+            $(obj).next().next().find("input").prop("checked",flag)
+        }
+        function h5mouseover(obj) {
+            $(obj).css("color","blue")
+            $(obj).css("cursor","pointer")
+        }
+        function h5mouseout(obj) {
+            $(obj).css("color","black")
+            $(obj).css("cursor","none")
+        }
+        function selectAsUserBtn() {
+            var doms=$(".userList input:checked")
+            var users=""
+            for(i=0;i<doms.length;i++){
+                users+=$(doms[i]).parent().text()+" ;"
+            }
+            $("#asUserInput").val(users)
+            var dom =$("#asUserInput").get(0)
+            dom.click()
+        }
+        
+        function sendMail() {
+            var doms=$(".userList input:checked")
+            var asMails=[]
+            for(i=0;i<doms.length;i++){
+                asMails.push(doms[i].value)
+            }
+            var title=$("#inputPassword3").val()
+            if(title===""){
+                alert("必须输入标题！")
+                return
+            }
+            var text=$("#mailText").val()
+            if(text===""){
+                alert("必须输入正文！")
+                return;
+            }
+            if(doms.length==0){
+                alert("必须选择收件人！")
+                return;
+            }
+            var file=new FormData($("#upForm")[0])
+            file.append("title",title)
+            file.append("text",text)
+            file.append("asUser",asMails)
+
+            var url=[[${#request.getScheme()}]]+"://"+[[${#request.getServerName()}]]+":"+[[${#request.getServerPort()}]]+[[${#request.getContextPath()}]]+"/mail/sendMail"
+            $.ajax({
+                url:url,
+                type:"post",
+                data:file,
+                dataType:"json",
+                processData:false,
+                contentType:false,
+                cache: false,
+                success:function (data) {
+                    $("#inputPassword3").val("")
+                    $("#mailText").val("")
+                    $(".userList input:checked").prop("checked",false)
+                    $("#asUserInput").val("")
+                    $("#upForm")[0].reset();
+                    if(data.errorCount===0){
+                        alert(data.count+"条邮件发送成功！")
+                    }else{
+                        alert(data.count+"条邮件发送成功！")
+                        var asUser=""
+                        $.each(data.errorAsUser,function (i,n) {
+                            asUser+=n;
+                            asUser+=";"
+                        })
+                        alert(asUser+"等"+data.errorCount+"条邮件发送失败！")
+                    }
+                    $("#addModal").modal("hide")
+                    location.reload()
+                }
+            })
+        }
+        function flushPage() {
+            location.reload();
+        }
+        function queryMySendMail() {
+            $.ajax({
+                url:[[${#request.getContextPath()}]]+"/mail/queryMySendMail",
+                type:"get",
+                dataType:"json",
+                success:function (data) {
+                    html1=""
+                    var path=[[${#request.getContextPath()}]];
+                    $.each(data,function (i,n) {
+                        var number=i+1
+                        $("#tb").html("")
+                        html1+='<tr id="T" >'
+                        html1+="<td class='lsit'><input type='checkbox' value='"+n.id+"' onclick='selectMail(this)'></td>"
+                        html1+='<td class="lsit">'+number+'</td>';
+                        html1+='<td class="lsit" >'+n.title+'</td >'
+                        html1+=' <td class="lsit" >'+n.resourceName+'</td>'
+                        html1+='<td class="lsit" >'+n.time+'</td>'
+
+                        html1+='<td class="lsit" style="display: none"  ><a href="'+path+'/mail/detail?mailId='+n.id+'"></a></td>'
+                        html1+='</tr>'
+
+
+
+                    })
+                    $("#mailState").css("display","none")
+                    $("#tb").html(html1)
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+<!--发送邮件的的模态窗口-->
+<div class="modal fade" id="addModal" role="dialog" style="margin-top: 50px">
+    <div class="modal-dialog" role="document" style="width: 45%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel2">注意</h4>
+            </div>
+
+
+            <div class="container" >
+                <div class="row clearfix">
+                    <div class="col-md-12 column">
+                        <form class="form-horizontal" role="form">
+
+                        <label >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;收件人:&nbsp;&nbsp;</label><!--    <div onclick="showMailAsUser()" style="width: 360px;height: 35px;background-color: white;border: solid;display: inline"></div>-->
+
+                            <input type="text" onclick="showMailAsUser()"  readonly="readonly" class="form-control" id="asUserInput" style="margin-top: 10px;display: inline;width: 360px;cursor: pointer;background-color: white">
+                            <br>
+                            
+<!--                            这里是点击展开列表的div，平时隐藏，点击显示-->
+                            <div id="mailAsUser" style="width: 360px;border-radius: 4px;border:1px #6495ED solid;margin-left: 104px;text-align: center;position: absolute;background-color: white;display: none">
+
+                            </div>
+                            
+                            
+                            <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;标题:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label><input type="text" class="form-control" id="inputPassword3" style="margin-bottom: 10px;width: 362px;display: inline;margin-top: 10px" /><br>
+                            <textarea id="mailText" style="width: 535px;height: 300px;border-radius: 5px;border: grey 1px solid">
+
+                            </textarea>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="modal-footer">
+                <!--
+
+                    data-dismiss="modal"
+                        表示关闭模态窗口
+
+                -->
+                <form action="/mail/sendMail" id="upForm" enctype="multipart/form-data" method="post">
+                    <input id="fileInput" type="file" name="myFile" >
+                </form>
+
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+
+                <button type="button" class="btn btn-danger" onclick="sendMail()" style="background-color: red">发送</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--询问是否确定删除的模态窗口-->
+<div class="modal fade" id="deleteModal" role="dialog" style="margin-top: 120px">
+    <div class="modal-dialog" role="document" style="width: 45%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel2">注意</h4>
+            </div>
+            <div class="modal-body" style="text-align: center">
+
+                <span style="font-size: 20px">确定删除选择的邮件么？</span>
+
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <!--
+
+                    data-dismiss="modal"
+                        表示关闭模态窗口
+
+                -->
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" id="deleteBtn" style="background-color: red">删除</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <div style="position: relative; left: 10px; top: -10px;">
+        <div class="page-header">
+            <h3 style="display: inline">邮件</h3>&nbsp;&nbsp;<span id="count" th:text="|${mailCount}条邮件 ${notReadCount}条未读|"></span>
+        </div>
+    </div>
+</div>
+
+<div class="btn-toolbar" role="toolbar" style="background-color: white;margin-top: 2px;margin-bottom: 25px;margin-top: -20px;margin-left: 2px">
+    <div class="btn-group" style="position: relative;">
+        <button type="button" class="btn btn-primary" onclick="openAddModal()" id="addBtn"><span class="glyphicon glyphicon-plus"></span> 写邮件</button>
+<!--        <button type="button" class="btn btn-primary" onclick="multiAddModal()" ><span class="glyphicon glyphicon-plus"></span> 批量导入</button>-->
+        <button type="button" onclick="deleteModal()" class="btn btn-danger"><span class="glyphicon glyphicon-minus" ></span> 删除</button>
+<!--        <button type="button" class="btn btn-default" id="editLawcaseOwnerBtn"><span class="glyphicon glyphicon-pencil"></span> 分配案件</button>-->
+<!--        <button type="button" class="btn btn-default" id="autoEditLawcaseOwnerBtn"><span class="glyphicon glyphicon-pencil"></span> 自动分配</button>-->
+
+<!--        <input class="form-control" type="text" id="likeQuery" style="width: 683px;position: absolute;top: 0px;left: 460px">-->
+<!--        <button type="button" class="btn btn-default" id="likeQueryLawcaseBtn" onclick="likeQueryLawcase()" style="position: absolute;top: 0px;left: 1120px">模糊查询</button>-->
+        <button type="button" class="btn btn-default" onclick="flushPage()">收件箱</button>
+        <button type="button" class="btn btn-default" onclick="queryMySendMail()">发件箱</button>
+        <input class="form-control" type="text" id="likeQuery" style="width: 883px;position: absolute;top: 0px;left: 300px">
+        <button type="button" class="btn btn-default" id="likeQueryMailBtn" onclick="likeQueryMail()" style="position: absolute;top: 0px;left: 1120px">模糊查询</button>
+    </div>
+</div>
+
+<table class="table table-condensed table-bordered" style="text-align: center;margin-top: -15px;margin-left: 9px">
+    <thead>
+    <tr >
+        <th style="text-align: center">
+            <input type="checkbox" id="selectAll">
+        </th>
+        <th style="text-align: center">
+            条目
+        </th >
+        <th style="text-align: center">
+            标题
+        </th>
+        <th style="text-align: center">
+            发件人
+        </th>
+        <th style="text-align: center">
+            时间
+        </th>
+        <th style="text-align: center" id="mailState">
+            状态
+        </th>
+    </tr>
+    </thead>
+    <tbody id="tb">
+
+    </tbody>
+
+    </table>
+    <div id="page" style="margin-left: -235px;margin-top: -15px"></div>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhichangan.debt.mail.mapper.MailMapper">
+  <resultMap id="BaseResultMap" type="com.zhichangan.debt.mail.entity.Mail">
+    <id column="id" jdbcType="CHAR" property="id" />
+    <result column="file_path" jdbcType="VARCHAR" property="filePath" />
+    <result column="time" jdbcType="CHAR" property="time" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="resource" jdbcType="CHAR" property="resource" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.zhichangan.debt.mail.entity.Mail">
+    <result column="text" jdbcType="LONGVARCHAR" property="text" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, file_path, time, title, resource
+  </sql>
+  <sql id="Blob_Column_List">
+    text
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from tbl_mail
+    where id = #{id,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from tbl_mail
+    where id = #{id,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.zhichangan.debt.mail.entity.Mail">
+    insert into tbl_mail (id, file_path, time, 
+      title, resource, text
+      )
+    values (#{id,jdbcType=CHAR}, #{filePath,jdbcType=VARCHAR}, #{time,jdbcType=CHAR}, 
+      #{title,jdbcType=VARCHAR}, #{resource,jdbcType=CHAR}, #{text,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.zhichangan.debt.mail.entity.Mail">
+    insert into tbl_mail
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="filePath != null">
+        file_path,
+      </if>
+      <if test="time != null">
+        time,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="resource != null">
+        resource,
+      </if>
+      <if test="text != null">
+        text,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=CHAR},
+      </if>
+      <if test="filePath != null">
+        #{filePath,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null">
+        #{time,jdbcType=CHAR},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="resource != null">
+        #{resource,jdbcType=CHAR},
+      </if>
+      <if test="text != null">
+        #{text,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zhichangan.debt.mail.entity.Mail">
+    update tbl_mail
+    <set>
+      <if test="filePath != null">
+        file_path = #{filePath,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null">
+        time = #{time,jdbcType=CHAR},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="resource != null">
+        resource = #{resource,jdbcType=CHAR},
+      </if>
+      <if test="text != null">
+        text = #{text,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.zhichangan.debt.mail.entity.Mail">
+    update tbl_mail
+    set file_path = #{filePath,jdbcType=VARCHAR},
+      time = #{time,jdbcType=CHAR},
+      title = #{title,jdbcType=VARCHAR},
+      resource = #{resource,jdbcType=CHAR},
+      text = #{text,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zhichangan.debt.mail.entity.Mail">
+    update tbl_mail
+    set file_path = #{filePath,jdbcType=VARCHAR},
+      time = #{time,jdbcType=CHAR},
+      title = #{title,jdbcType=VARCHAR},
+      resource = #{resource,jdbcType=CHAR}
+    where id = #{id,jdbcType=CHAR}
+  </update>
+
+
+  <select id="queryNotReadMail" resultMap="ResultMapWithBLOBs">
+    select *from
+      tbl_mail m
+        join tbl_user_mail_relationship r
+             on m.id= r.mail_id
+    where r.user_id=#{userId} and r.state=#{state}
+
+
+
+  </select>
+  <select id="queryByResource" resultMap="BaseResultMap">
+    select * from tbl_mail where resource=#{id} order by time desc
+  </select>
+</mapper>

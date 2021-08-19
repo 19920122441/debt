@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link th:href="@{/jquery/bootstrap_3.3.0/css/bootstrap.min.css}" type="text/css" rel="stylesheet" />
+    <style>
+
+    </style>
+    <script type="text/javascript" th:src="@{/jquery/jquery-1.11.1-min.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery/bootstrap_3.3.0/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/echarts.min.js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        $(function (){
+            main();
+
+            $("#multiAddBtn").click(function () {
+                var url=[[${#request.getScheme()}]]+"://"+[[${#request.getServerName()}]]+":"+[[${#request.getServerPort()}]]+[[${#request.getContextPath()}]]+"/lawCase/repayment"
+                var from=new FormData($("#upForm")[0]);
+                $.ajax({
+                    url:url,
+                    type:"post",
+                    data:from,
+                    dataType:"json",
+                    cache:false,
+                    processData:false,
+                    contentType:false,
+                    success:function (data) {
+                        
+                    }
+                })
+            })
+
+        })
+        function main(){
+            var deptList=[[${deptList}]]
+
+
+            var series=new Array()
+            var deptNameList=new Array()
+            for(i=0;i<deptList.length;i++){
+                deptNameList.push(deptList[i].name)
+
+                series.push({
+                    name: deptList[i].name,
+                    type: 'bar',
+                    barGap: 0,
+                    label: labelOption,
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [deptList[i].ach5,deptList[i].ach4,deptList[i].ach3,deptList[i].ach2,deptList[i].ach1]
+
+
+                })
+
+
+            }
+
+            var app = {};
+
+            var chartDom = document.getElementById('main');
+            var myChart = echarts.init(chartDom);
+            var option;
+
+            var posList = [
+                'left', 'right', 'top', 'bottom',
+                'inside',
+                'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+                'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+            ];
+
+            app.configParameters = {
+                rotate: {
+                    min: -90,
+                    max: 90
+                },
+                align: {
+                    options: {
+                        left: 'left',
+                        center: 'center',
+                        right: 'right'
+                    }
+                },
+                verticalAlign: {
+                    options: {
+                        top: 'top',
+                        middle: 'middle',
+                        bottom: 'bottom'
+                    }
+                },
+                position: {
+                    options: posList.reduce(function (map, pos) {
+                        map[pos] = pos;
+                        return map;
+                    }, {})
+                },
+                distance: {
+                    min: 0,
+                    max: 100
+                }
+            };
+
+            app.config = {
+                rotate: 90,
+                align: 'left',
+                verticalAlign: 'middle',
+                position: 'insideBottom',
+                distance: 15,
+                onChange: function () {
+                    var labelOption = {
+                        normal: {
+                            rotate: app.config.rotate,
+                            align: app.config.align,
+                            verticalAlign: app.config.verticalAlign,
+                            position: app.config.position,
+                            distance: app.config.distance
+                        }
+                    };
+                    myChart.setOption({
+                        series: [{
+                            label: labelOption
+                        }, {
+                            label: labelOption
+                        }, {
+                            label: labelOption
+                        }, {
+                            label: labelOption
+                        }]
+                    });
+                }
+            };
+
+
+            var labelOption = {
+                show: true,
+                position: app.config.position,
+                distance: app.config.distance,
+                align: app.config.align,
+                verticalAlign: app.config.verticalAlign,
+                rotate: app.config.rotate,
+                formatter: '{c}  {name|{a}}',
+                fontSize: 16,
+                rich: {
+                    name: {
+                    }
+                }
+            };
+
+            option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: deptNameList
+                },
+                toolbox: {
+                    show: true,
+                    orient: 'vertical',
+                    left: 'right',
+                    top: 'center',
+                    feature: {
+                        mark: {show: true},
+                        dataView: {show: true, readOnly: false},
+                        magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                        restore: {show: true},
+                        saveAsImage: {show: true}
+                    }
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        axisTick: {show: false},
+                        data: ['四月前', '三月前', '两月前', '一月前', '当前月']
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value'
+                    }
+                ],
+                series: series
+            };
+
+            option && myChart.setOption(option);
+
+        }
+
+        function queryUserSal() {
+
+            var queryJobNumber=$("#query-jobNumber").val();
+            $.ajax({
+                url:[[${#request.getContextPath()}]]+"/user/queryUserByJobNumber",
+                type:"get",
+                data:{
+                    "jobNumber":queryJobNumber
+                },
+                dataType:"json",
+                success:function (data) {
+                    if(data != ""){
+
+
+
+                        var series=new Array()
+                        var deptNameList=new Array()
+                        deptNameList.push("还款")
+                        deptNameList.push("佣金")
+                        series.push({
+                            name: "还款",
+                            type: 'bar',
+                            barGap: 0,
+                            label: labelOption,
+                            emphasis: {
+                                focus: 'series'
+                            },
+                            data: [data.ach5,data.ach4,data.ach3,data.ach2,data.ach1]
+
+
+                        })
+                        series.push({
+                            name: "佣金",
+                            type: 'bar',
+                            barGap: 0,
+                            label: labelOption,
+                            emphasis: {
+                                focus: 'series'
+                            },
+                            data: [data.com5,data.com4,data.com3,data.com2,data.com1]
+
+
+                        })
+
+
+                        var app = {};
+
+                        var chartDom = document.getElementById('main');
+                        var myChart = echarts.init(chartDom);
+                        var option;
+
+                        var posList = [
+                            'left', 'right', 'top', 'bottom',
+                            'inside',
+                            'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+                            'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+                        ];
+
+                        app.configParameters = {
+                            rotate: {
+                                min: -90,
+                                max: 90
+                            },
+                            align: {
+                                options: {
+                                    left: 'left',
+                                    center: 'center',
+                                    right: 'right'
+                                }
+                            },
+                            verticalAlign: {
+                                options: {
+                                    top: 'top',
+                                    middle: 'middle',
+                                    bottom: 'bottom'
+                                }
+                            },
+                            position: {
+                                options: posList.reduce(function (map, pos) {
+                                    map[pos] = pos;
+                                    return map;
+                                }, {})
+                            },
+                            distance: {
+                                min: 0,
+                                max: 100
+                            }
+                        };
+
+                        app.config = {
+                            rotate: 90,
+                            align: 'left',
+                            verticalAlign: 'middle',
+                            position: 'insideBottom',
+                            distance: 15,
+                            onChange: function () {
+                                var labelOption = {
+                                    normal: {
+                                        rotate: app.config.rotate,
+                                        align: app.config.align,
+                                        verticalAlign: app.config.verticalAlign,
+                                        position: app.config.position,
+                                        distance: app.config.distance
+                                    }
+                                };
+                                myChart.setOption({
+                                    series: [{
+                                        label: labelOption
+                                    }, {
+                                        label: labelOption
+                                    }, {
+                                        label: labelOption
+                                    }, {
+                                        label: labelOption
+                                    }]
+                                });
+                            }
+                        };
+
+
+                        var labelOption = {
+                            show: true,
+                            position: app.config.position,
+                            distance: app.config.distance,
+                            align: app.config.align,
+                            verticalAlign: app.config.verticalAlign,
+                            rotate: app.config.rotate,
+                            formatter: '{c}  {name|{a}}',
+                            fontSize: 16,
+                            rich: {
+                                name: {
+                                }
+                            }
+                        };
+
+                        option = {
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                    type: 'shadow'
+                                }
+                            },
+                            legend: {
+                                data: deptNameList
+                            },
+                            toolbox: {
+                                show: true,
+                                orient: 'vertical',
+                                left: 'right',
+                                top: 'center',
+                                feature: {
+                                    mark: {show: true},
+                                    dataView: {show: true, readOnly: false},
+                                    magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                                    restore: {show: true},
+                                    saveAsImage: {show: true}
+                                }
+                            },
+                            xAxis: [
+                                {
+                                    type: 'category',
+                                    axisTick: {show: false},
+                                    data: ['四月前', '三月前', '两月前', '一月前', '当前月']
+                                }
+                            ],
+                            yAxis: [
+                                {
+                                    type: 'value'
+                                }
+                            ],
+                            series: series
+                        };
+
+                        option && myChart.setOption(option);
+
+                    }else{
+                        alert("找不到该员工！")
+                    }
+                }
+            })
+        }
+        function openSalModal() {
+            $("#salModal").modal("show")
+            $("#fileInput").get(0).click()
+        }
+
+    </script>
+</head>
+<body th:inline="text">
+<!--新增还款的模态窗口-->
+<div class="modal fade" id="salModal" role="dialog" style="margin-top: 120px">
+    <div class="modal-dialog" role="document" style="width: 45%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" >注意</h4>
+            </div>
+            <div class="modal-body" style="text-align: center">
+
+                <span style="font-size: 20px">确定上传文件批量新增？</span>
+
+
+
+                <form action="/lawCase/multiAdd" id="upForm" enctype="multipart/form-data" method="post">
+                    <input id="fileInput" type="file" name="file" style="display: none">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <!--
+
+                    data-dismiss="modal"
+                        表示关闭模态窗口
+
+                -->
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" id="multiAddBtn" style="background-color: red">新增</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <div style="position: relative; left: 10px; top: -10px;">
+        <div class="page-header">
+            <h3 style="display: inline">业绩总览</h3>&nbsp;&nbsp;<span id="count" th:text="|当月总还款为${allAch}元！|"></span>
+        </div>
+    </div>
+</div>
+
+<div class="btn-group" style="position: relative;">
+
+    <div class="btn-toolbar" role="toolbar" style="margin-top: -10px;width: 1000px;margin-left: 10px;margin-bottom: 30px">
+
+
+<!--            <button type="button" class="btn btn-primary" onclick="openAddModal()" id="addBtn"><span class="glyphicon glyphicon-plus"></span> 新增</button>-->
+<!--            &lt;!&ndash;        <button type="button" class="btn btn-primary" onclick="multiAddModal()" ><span class="glyphicon glyphicon-plus"></span> 批量导入</button>&ndash;&gt;-->
+<!--            <button type="button" onclick="deleteModal()" class="btn btn-danger"><span class="glyphicon glyphicon-minus" ></span> 删除</button>-->
+
+
+            <div class="form-group" style="width: 160px;border: none;margin-top: 20px">
+                <div class="input-group" style="border: none">
+                    <div class="input-group-addon">工号</div>
+                    <input class="form-control" type="text" id="query-jobNumber">
+                </div>
+            </div>
+
+
+
+
+
+
+
+            <button type="button" class="btn btn-default" onclick="queryUserSal()">查询员工业绩</button>
+            <button type="button" class="btn btn-default" onclick="openSalModal()">上传还款工单</button>
+
+
+    </div>
+
+
+</div>
+<div id="main" style="width: 1000px;height: 500px;margin-left: 100px"></div>
+
+</body>
+</html>

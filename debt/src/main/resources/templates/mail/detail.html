@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link th:href="@{/jquery/bootstrap_3.3.0/css/bootstrap.min.css}" type="text/css" rel="stylesheet" />
+
+		<script type="text/javascript" th:src="@{/jquery/jquery-1.11.1-min.js}"></script>
+		<script type="text/javascript" th:src="@{/jquery/bootstrap_3.3.0/js/bootstrap.min.js}"></script>
+		<script type="text/javascript" th:inline="javascript">
+			$(function (){
+				$("#file").hover(
+						$("#file").css("cursor","pointer")
+				)
+				$("#file").click(function () {
+
+					document.getElementById("download").click();
+				})
+			})
+			function deleteMail() {
+				$.ajax({
+					url:[[${#request.getContextPath}]]+"/userMailRelationship/delete",
+					type:"get",
+					data:{
+						"mailId":[[${mail.id}]],
+
+					},
+					success:function (data){
+
+						if (data==="删除成功！"){
+							history.back();
+
+						}
+					}
+				})
+			}
+		</script>
+	</head>
+	<body th:inline="text">
+		<div class="container">
+			<div class="row clearfix">
+				<div class="col-md-12 column">
+					<h3 th:text="${mail.title}" style="text-align: center">
+						从今日起我司正是为妥中信银行所有案件的相关公告。
+					</h3>
+					<br>
+					<span style="margin-left: 20px" th:text="${'发件人:'+mail.resourceName}" >发件人:刘贺</span>
+					<br>
+
+					   <span style="margin-left: 20px">收件人:</span><span th:each="userName:${mailUserNameList}" >
+						  [[${userName}]]
+				       </span>
+					<br><br>
+					<div id="mail" style="margin-left: 20px" th:text="'&nbsp;&nbsp;&nbsp;&nbsp;'+${mail.text}">
+						从今日起我司正是为妥中信银行所有案件，请各木门催收人员注意态度。催收。从今日起我司正是为妥中信银行所有案件，请各木门催收人员注意态度。催收。
+						从今日起我司正是为妥中信银行所有案件，请各木门催收人员注意态度。催收。从今日起我司正是为妥中信银行所有案件，请各木门催收人员注意态度。催收。
+						从今日起我司正是为妥中信银行所有案件，请各木门催收人员注意态度。催收。从今日起我司正是为妥中信银行所有案件，请各木门催收人员注意态度。催收。
+						从今日起我司正是为妥中信银行所有案件，请各木门催收人员注意态度。催收。从今日起我司正是为妥中信银行所有案件，请各木门催收人员注意态度。催收。
+						从今日起我司正是为妥中信银行所有案件，请各木门催收人员注意态度。催收。从今日起我司正是为妥中信银行所有案件，请各木门催收人员注意态度。催收。
+					</div>
+					<br>
+					<span style="margin-left: 1000px" th:text="${mail.time}">2000-12-45 12:12:12</span>
+
+					<div  style="margin-left: 20px" th:if="${mail.filePath}">
+						<span >附件:</span>
+						<br><br>
+						<div style="width: 400px;border-radius: 5px;border: 1px solid black;height: 50px"  id="file">
+							<img  alt="文件已损坏" th:src="@{/image/file.png}" src="" style="width: 40px;height: 40px;margin-top: -3px;margin-left: 10px;line-height: 50px">
+							<span th:text="${mail.fileName}" style="text-align: center;margin-left: 10px;line-height: 50px"></span>
+							<a th:href="@{/mail/download(filePath=${mail.filePath})}" id="download"></a>
+						</div>
+
+					</div>
+
+					<br>
+
+
+
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

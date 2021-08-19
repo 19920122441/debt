@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+  <link th:href="@{/jquery/bootstrap_3.3.0/css/bootstrap.min.css}" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" th:src="@{/jquery/jquery-1.11.1-min.js}"></script>
+  <script type="text/javascript" th:src="@{/jquery/bootstrap_3.3.0/js/bootstrap.min.js}"></script>
+  <script type="text/javascript" th:src="@{/xlPaging.js}"></script>
+
+  <link th:href="@{/jquery/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css}" type="text/css" rel="stylesheet" />
+
+
+
+  <script type="text/javascript" th:src="@{/jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js}"></script>
+  <script type="text/javascript" th:src="@{/jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js}"></script>
+  <style>
+
+    #page {
+      margin: 20px auto;
+      color: #666;
+      display: block;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    #page li {
+      display: inline-block;
+      min-width: 50px;
+      height: 30px;
+      cursor: pointer;
+      color: #666;
+      font-size: 13px;
+      line-height: 28px;
+      background-color: #f9f9f9;
+      border: 1px solid #dce0e0;
+      text-align: center;
+      margin: 0 4px;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      border-radius: 2px;
+      position: relative;
+      left: -430px;
+      bottom: -10px;
+    }
+
+    .xl-nextPage,
+    .xl-prevPage {
+      width: 60px;
+      color: #418ac8FF;
+      height: 28px;
+    }
+
+    #page li.xl-disabled {
+      opacity: .5;
+      cursor: no-drop;
+    }
+
+    #page li.xl-disabled:hover{
+      background-color: #f9f9f9 !important;
+      border: 1px solid #dce0e0 !important;
+      color: #666 !important;
+    }
+
+    #page li.xl-active {
+      background-color: #418ac8FF;
+      border-color: #418ac8FF;
+      color: #FFF
+    }
+
+    #page li:hover{
+      background-color: #418ac8FF !important;
+      border-color: #418ac8FF;
+      color: #FFF
+    }
+
+    #page li.xl-jumpText {
+      background-color: rgba(0,0,0,0);
+      border-color: rgba(0,0,0,0);
+      opacity: 1;
+    }
+
+    #page li.xl-jumpText:hover{
+      background-color: rgba(0,0,0,0) !important;
+      border-color: rgba(0,0,0,0) !important;
+    }
+
+    #page li.xl-jumpButton{
+      padding: 0 5px;
+    }
+
+    #xlJumpNum {
+      width: 35px;
+      margin: 0 3px;
+    }
+    input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{
+      -webkit-appearance: none !important;
+    }
+    input[type="number"]{
+      -moz-appearance:textfield;
+    }
+  </style>
+    <title>Title</title>
+    <script type="text/javascript" th:inline="javascript">
+        $(function () {
+            //分页初始化
+            var pagesize=10;
+            var noteCount=[[${userCount}]]
+            var allPageNumber=0
+            if ((noteCount%pagesize)!==0){
+                allPageNumber=noteCount/pagesize+1;
+            }else{
+
+                allPageNumber=noteCount/pagesize;
+            }
+
+            let xlPaging =new Paging('page', {
+                nowPage: 1, // 当前页码
+                pageNum: allPageNumber, // 总页码
+                buttonNum: 10, //要展示的页码数量
+                canJump: 0,// 是否能跳转。0=不显示（默认），1=显示
+                showOne: 1,//只有一页时，是否显示。0=不显示,1=显示（默认）
+                callback: function (num) { //回调函数
+                    pageQuery(pagesize,num)
+                    console.log(num);
+
+                }
+            })
+            pageQuery(1,10)
+            $("#selectAll").click(function () {
+                var flag=$("#selectAll").prop("checked")
+                $("#tb").find("input").prop("checked",flag)
+            })
+
+        })
+        function pageQuery(pageNumber,pageSize) {
+
+            $.ajax({
+                url:[[${#request.getContextPath()}]]+"/user/pageQuery",
+                type:"get",
+                data:{
+                    "pageNumber":pageNumber,
+                    "pageSize":pageSize
+                },
+                dataType:"json",
+                success:function (data) {
+                    editPath=[[${#request.getContextPath()}]]+"/user/edit"
+                    showCreateNotePath=[[${#request.getContextPath()}]]+"/note/showTodayCreateNote"
+                    html=""
+                    $.each(data,function (i,n) {
+                        index=i+1
+                        html+="<tr style='text-align: center'>"
+                        html+='<td class="userList" onclick="selectUser()"><input data-id="'+n.id+'" type="checkbox"></td>'
+                        html+='<td>'+index+'</td>'
+                        html+='<td>'+n.name+'</td>'
+                        html+='<td>'+n.sex+'</td>'
+                        html+='<td>'+n.age+'</td>'
+                        html+='<td>'+n.jobNumber+'</td>'
+                        html+='<td>'+n.deptName+'</td>'
+                        html+='<td>'+n.job+'</td>'
+                        html+='<td>'+n.phone+'</td>'
+                        html+='<td>'+n.todayCallLawCaseNumber+'</td>'
+                        html+='<td ><a data-id="'+n.id+'" data-root1="'+n.root+'" data-job="'+n.job+'" data-phone="'+n.phone+'" data-dept="'+n.dept+'" data-j="'+n.jobNumber+'" data-name="'+n.name+'" onclick="openEditUserModal(this)">修改信息</a>&nbsp;|&nbsp;<a data-id="'+n.id+'" onclick="showUserWork(this)">工作记录</a></td>'
+                        html+="</tr>"
+                    })
+                    $("#tb").html(html)
+                }
+            })
+        }
+        function selectUser() {
+            flag=true;
+            var doms=$("#tb").find("input")
+            for(i=0;i<doms.length;i++){
+                if(!$(doms[i]).prop("checked")){
+                    flag=false;
+                }
+            }
+            $("#selectAll").prop("checked",flag)
+        }
+        function openEditUserModal(obj){
+            // $.ajax({
+            //     url:[[${#request.getContextPath()}]]+"/dept/queryAllDept",
+            //     type:"get",
+            //     dataType:"json",
+            //     success:function (data) {
+            //         html=''
+            //         $.each(data,function (i,n) {
+            //             html+='<option class="op"  value="'+n.id+'">'+n.name+'</option>'
+            //
+            //         })
+            //         $("#editUserDept").html(html)
+            //     }
+            // })
+            var root1=$(obj).data("root1")
+            var job=$(obj).data("job")
+            var name=$(obj).data("name")
+            var jobNumber="工号-"+$(obj).data("j")
+            var dept=$(obj).data("dept")
+            var phone=$(obj).data("phone")
+            var id=$(obj).data("id")
+            $("#editUserRoot").val(root1)
+
+            $("#userId").val(id)
+            $("#userName").text(name+"       "+jobNumber)
+            $("#jobNumber").text(jobNumber)
+            $("#editUserPhone").val(phone)
+            $("#editUserJob").val(job)
+            $("#editUserDept").val(dept)
+            $("#editUserModal").modal("show")
+
+        }
+        function editUser() {
+            var dept=$("#editUserDept").val()
+            var phone=$("#editUserPhone").val()
+            var job=$("#editUserJob").val()
+            var root=$("editUserRoot").val()
+            var id=$("#userId").val()
+            if(dept=="" || phone=="" || job=="" || root==""){
+                alert("信息不得为空！")
+            }
+            $.ajax({
+                url:[[${#request.getContextPath()}]]+"/user/edit",
+                type:"get",
+                data:{
+                    "id":id,
+                    "dept":dept,
+                    "phone":phone,
+                    "job":job,
+                    "root":root
+                },
+                dataType:"json",
+                success:function (data) {
+                    if(data){
+                        $("#editUserModal").modal("hide")
+                        alert("修改信息成功！")
+                        location.reload()
+                    }else {
+                        alert("修改信息失败！")
+                        location.reload()
+                    }
+                }
+            })
+        }
+        function deleteModal() {
+            $("#deleteModal").modal("show")
+        }
+        function deleteUser(obj) {
+            var doms=$("#tb").find("input:checked")
+            var ids=[];
+            for(i=0;i<doms.length;i++){
+                ids.push($(doms[i]).data("id"))
+            }
+            $.ajax({
+                url:[[${#request.getContextPath()}]]+"/user/delete",
+                type:"get",
+                data:ids,
+                dataType:"json",
+                success:function (data) {
+
+                        alert(data.count+"个员工删除成功！")
+
+
+                }
+            })
+        }
+
+
+        function openAddModal() {
+            $.ajax({
+                url:[[${#request.getContextPath()}]]+"/dept/queryAllDept",
+                type:"get",
+                dataType:"json",
+                success:function (data) {
+                    html=""
+                    $.each(data,function (i,n) {
+                        html+='<option value="'+n.id+'">'+n.name+'</option>'
+                    })
+                    $("#createUser-dept").html(html)
+                }
+            })
+            $("#createUserModal").modal("show")
+        }
+
+        function addUser() {
+            var dept=$("#createUser-dept").val()
+            var phone=$("#createUser-phone").val()
+            var job=$("#createUser-job").val()
+            var age=$("#createUser-age").val()
+            var userName=$("#createUser-userName").val()
+            var password=$("#createUser-password").val()
+            var sex=$("#createUser-sex").val()
+            var root=$("#createUser-root").val()
+            var jobNumber=$("#createUser-jobNumber").val()
+            var name=$("#createUser-name").val()
+            var cardId=$("#createUser-cardId").val()
+
+            $.ajax({
+                url:[[${#request.getContextPath()}]]+"/user/add",
+                type:"get",
+                data:{
+                    "name":name,
+                    "dept":dept,
+                    "root":root,
+                    "job":job,
+                    "userName":userName,
+                    "password":password,
+                    "jobNumber":jobNumber,
+                    "phone":phone,
+                    "sex":sex,
+                    "age":age,
+                    "cardid":cardId
+                },
+                dataType:"json",
+                success:function (data) {
+                    $("#createUser-dept").val("")
+                    $("#createUser-phone").val("")
+                    $("#createUser-job").val("")
+                    $("#createUser-age").val("")
+                    $("#createUser-userName").val("")
+                    $("#createUser-password").val("")
+                    $("#createUser-sex").val("")
+                    $("#createUser-root").val("")
+                    $("#createUser-jobNumber").val("")
+                    $("#createUser-name").val("")
+                    $("#createUser-cardId").val("")
+                    if(data){
+                        alert("新增成功！")
+                    }else{
+                        alert("新增失败！")
+                    }
+                    $("#createUserModal").modal("hide")
+                    pageQuery(1,10)
+                }
+            })
+
+        }
+        function queryUser() {
+            var name=$("#query-userName").val()
+            var dept=$("#query-dept").val()
+            var phone=$("#query-phone").val()
+            var jobNumber=$("#query-jobNumber").val()
+            $.ajax({
+                url:[[${#request.getContextPath()}]]+"/user/query",
+                type:"get",
+                data:{
+                    "name":name,
+                    "dept":dept,
+                    "phone":phone,
+                    "jobNumber":jobNumber
+                },
+                success:function (data) {
+                    var html=''
+                    $.each(data,function (i,n) {
+                        index=i+1
+                        html+="<tr style='text-align: center'>"
+                        html+='<td class="userList" onclick="selectUser()"><input data-id="'+n.id+'" type="checkbox"></td>'
+                        html+='<td>'+index+'</td>'
+                        html+='<td>'+n.name+'</td>'
+                        html+='<td>'+n.sex+'</td>'
+                        html+='<td>'+n.age+'</td>'
+                        html+='<td>'+n.jobNumber+'</td>'
+                        html+='<td>'+n.deptName+'</td>'
+                        html+='<td>'+n.job+'</td>'
+                        html+='<td>'+n.phone+'</td>'
+                        html+='<td>'+n.todayCallLawCaseNumber+'</td>'
+                        html+='<td ><a data-id="'+n.id+'" data-root1="'+n.root+'" data-job="'+n.job+'" data-phone="'+n.phone+'" data-dept="'+n.dept+'" data-j="'+n.jobNumber+'" data-name="'+n.name+'" onclick="openEditUserModal(this)">修改信息</a>&nbsp;|&nbsp;<a data-id="'+n.id+'" onclick="showUserWork(this)">工作记录</a></td>'
+                        html+="</tr>"
+                        $("#tb").html(html)
+                    })
+                }
+            })
+        }
+        function showUserWork(obj) {
+            var id=$(obj).data("id")
+            $.ajax({
+                url:[[${#request.getContextPath()}]]+'/user/userWork',
+                type:"get",
+                data:{
+                    "id":id
+                },
+                dataType:"json",
+                success:function (data) {
+                    if(data=='' || data ==null){
+                        var html1=''
+                        html1+='<td>无</td>'
+                        html1+='<td>无</td>'
+                        html1+='<td>无</td>'
+                        html1+='<td>无</td>'
+                        html1+='<td>无</td>'
+                        html1+='<td>无</td>'
+                        $("#showUserWorkTb").html(html1)
+                        $("#showUserWork").modal("show")
+                    }else{
+                        var html='<tr>'
+                        $.each(data,function (i,n) {
+                            var index=i+1
+                            html+='<td>'+index+'</td>'
+                            html+='<td>'+n.lawcase.lawcaseOwnerName+'</td>'
+                            html+='<td>'+n.lawcase.cardId+'</td>'
+                            html+='<td>'+n.lawcase.cardBank+'</td>'
+                            html+='<td>'+n.note.text+'</td>'
+
+                            html+='<td>'+n.note.time+'</td>'
+                        })
+                        html+="</td>"
+                        $("#showUserWorkTb").html(html)
+                        $("#showUserWorkTb").html(html)
+                        $("#showUserWork").modal("show")
+                    }
+
+                }
+            })
+        }
+    </script>
+</head>
+<body th:inline="text">
+<!--展示员工工作记录的模态窗口-->
+<div class="modal fade" id="showUserWork" role="dialog" style="margin-top: 120px;">
+    <div class="modal-dialog" role="document" style="width: 80%;">
+        <div class="modal-content" style="height:350px">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="">工作记录</h4>
+            </div>
+            <table class="table table-condensed table-bordered" style="text-align: center">
+                <thead>
+                <tr >
+
+                    <th style="text-align: center">
+                        条目
+                    </th >
+
+
+                    <th style="text-align: center">
+                        债务人
+                    </th>
+                    <th style="text-align: center">
+                        逾期卡号
+                    </th>
+                    <th style="text-align: center">
+                        委案银行
+                    </th>
+                    <th style="text-align: center">
+                        催记
+                    </th>
+
+                    <th style="text-align: center">
+                        时间
+                    </th>
+
+                </tr>
+                </thead>
+                <tbody id="showUserWorkTb">
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+</div>
+<div>
+<!--//新增员工的模态窗口-->
+<div class="modal fade" id="createUserModal" role="dialog">
+    <div class="modal-dialog" role="document" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">新增员工</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form">
+
+                    <div class="form-group">
+                        <label for="create-clueOwner" class="col-sm-2 control-label">分配部门<span style="font-size: 15px; color: red;">*</span></label>
+                        <div class="col-sm-10" style="width: 300px;">
+                            <select class="form-control" onchange="query(this)" id="createUser-dept">
+
+
+
+                            </select>
+                        </div>
+
+
+
+
+
+                        <label for="create-company" class="col-sm-2 control-label">姓名<span style="font-size: 15px; color: red;">*</span></label>
+                        <div class="col-sm-10" style="width: 300px;">
+                            <input class="form-control" id="createUser-name"  name="createUser-name">
+
+
+
+
+                        </div>
+                    </div>
+
+
+
+
+
+
+                    <div class="form-group">
+                        <label for="create-mphone" class="col-sm-2 control-label">年龄</label>
+                        <div class="col-sm-10" style="width: 300px;">
+                            <input type="text" class="form-control" id="createUser-age" >
+                        </div>
+                        <label for="create-status" class="col-sm-2 control-label">性别</label>
+                        <div class="col-sm-10" style="width: 300px;" >
+
+                            <select  class="form-control" id="createUser-sex">
+                                <option></option>
+                                <option value="男">男</option>
+                                <option value="女">女</option>
+                            </select>
+
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="create-mphone" class="col-sm-2 control-label">联系方式</label>
+                        <div class="col-sm-10" style="width: 300px;">
+                            <input type="text" class="form-control" id="createUser-phone" >
+                        </div>
+                        <label for="create-status" class="col-sm-2 control-label">职务</label>
+                        <div class="col-sm-10" style="width: 300px;">
+                            <input type="text" class="form-control" id="createUser-job">
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="create-mphone" class="col-sm-2 control-label" >用户名</label>
+                        <div class="col-sm-10" style="width: 300px;" >
+                            <input type="text" class="form-control" id="createUser-userName">
+                        </div>
+                        <label for="create-status" class="col-sm-2 control-label">密码</label>
+                        <div class="col-sm-10" style="width: 300px;">
+                            <input type="text" class="form-control" id="createUser-password">
+
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <label for="create-status" class="col-sm-2 control-label">管理员</label>
+                        <div class="col-sm-10" style="width: 300px;" >
+
+                            <select  class="form-control" id="createUser-root">
+                                <option></option>
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                            </select>
+
+                        </div>
+                        <label for="create-status" class="col-sm-2 control-label">工号</label>
+                        <div class="col-sm-10" style="width: 300px;">
+                            <input type="text" class="form-control" id="createUser-jobNumber">
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+
+                        <label for="create-mphone" class="col-sm-2 control-label" >身份证号</label>
+                        <div class="col-sm-10" style="width: 300px;" >
+                            <input type="text" class="form-control" id="createUser-cardId">
+                        </div>
+
+                    </div>
+
+
+
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="saveLawcaseBtn">新增</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--修改员工信息的模态窗口-->
+<div class="modal fade" id="editUserModal" role="dialog" style="margin-top: 120px;">
+    <div class="modal-dialog" role="document" style="width: 80%;">
+        <div class="modal-content" style="height:350px">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="">修改信息</h4>
+            </div>
+            <div class="modal-body" style="text-align: center">
+                <span id="message"></span>
+                <div class="form-group">
+                    <h4 style="margin-top: 10px;margin-bottom: 10px" id="userName">刘贺<span id="jobNumber" style="font-size: 10px;margin-left: 10px;margin-bottom: 20px">工号：9527</span></h4>
+                    <br>
+                    <div class="form-group">
+
+                        <label for="create-mphone" class="col-sm-2 control-label" style="margin-bottom: 20px">所属部门</label>
+                        <div class="col-sm-10" style="width: 300px;margin-bottom: 20px">
+                            <select  class="form-control"  id="editUserDept" name="userDeptList" >
+                                <div th:each="dept:${deptList}">
+                                    <option class="deptList" th:value="${dept.id}">[[${dept.name}]]</option>
+                                </div>
+
+
+                            </select>
+                        </div>
+
+                        <label for="create-status" class="col-sm-2 control-label" style="margin-bottom: 20px">系统管理员</label>
+                        <div class="col-sm-10" style="width: 300px;margin-bottom: 20px" >
+
+                            <select  class="form-control" id="editUserRoot">
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                            </select>
+
+                        </div>
+                        <label for="create-job" class="col-sm-2 control-label">职务</label>
+                        <div class="col-sm-10" style="width: 300px;">
+                            <input type="text" class="form-control" id="editUserJob">
+                        </div>
+                        <label for="create-job" class="col-sm-2 control-label">联系方式</label>
+                        <div class="col-sm-10" style="width: 300px;">
+                            <input type="text" class="form-control" id="editUserPhone">
+                        </div>
+                        <input type="text" style="display: none" id="userId">
+                    </div>
+
+                </div>
+                <br><br>
+            </div>
+            <div class="modal-footer" style="margin-top: 70px">
+                <!--
+
+                    data-dismiss="modal"
+                        表示关闭模态窗口
+
+                -->
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" onclick="addUser()" id="modal-editLawCaseOwnerBtn" style="background-color: red">修改</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <div style="position: relative; left: 10px; top: -10px;">
+        <div class="page-header">
+            <h3 style="display: inline">员工管理</h3></span>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<div class="btn-toolbar" role="toolbar" style="background-color: white;margin-top: -25px;margin-left: 15px">
+    <!--询问是否确定删除的模态窗口-->
+    <div class="modal fade" id="deleteModal" role="dialog" style="margin-top: 120px">
+        <div class="modal-dialog" role="document" style="width: 45%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel2">注意</h4>
+                </div>
+                <div class="modal-body" style="text-align: center">
+
+                    <span style="font-size: 20px">确定删除选择的员工么？</span>
+
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <!--
+
+                        data-dismiss="modal"
+                            表示关闭模态窗口
+
+                    -->
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger" id="deleteBtn" onclick="deleteUser()" style="background-color: red">删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="btn-group" style="position: relative;">
+
+        <div class="btn-toolbar" role="toolbar" style="height: 80px;width: 1000px;margin-left: -15px">
+
+            <form th:action="@{/lawCase/query}" class="form-inline" role="form" style="position: relative;top: 8%; left: 5px;" id="queryFrom">
+                <button type="button" class="btn btn-primary" onclick="openAddModal()" id="addBtn"><span class="glyphicon glyphicon-plus"></span> 新增</button>
+                <!--        <button type="button" class="btn btn-primary" onclick="multiAddModal()" ><span class="glyphicon glyphicon-plus"></span> 批量导入</button>-->
+                <button type="button" onclick="deleteModal()" class="btn btn-danger"><span class="glyphicon glyphicon-minus" ></span> 删除</button>
+                <div class="form-group" style="width: 150px">
+                    <div class="input-group">
+                        <div class="input-group-addon">姓名</div>
+                        <input class="form-control" type="text" id="query-userName">
+                    </div>
+                </div>
+
+                <div class="form-group" style="width: 160px;">
+                    <div class="input-group">
+                        <div class="input-group-addon">工号</div>
+                        <input class="form-control" type="text" id="query-jobNumber">
+                    </div>
+                </div>
+                <div class="form-group" style="width: 160px;">
+                    <div class="input-group">
+                        <div class="input-group-addon">联系方式</div>
+                        <input class="form-control" type="text" id="query-phone">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-addon">部门</div>
+                        <select class="form-control" id="query-dept">
+                            <option></option>
+                            <div th:each="dept:${deptList}">
+                                <option th:value="${dept.id}" th:text="${dept.name}">${dept.name}</option>
+                            </div>
+
+
+                        </select>
+                    </div>
+
+                </div>
+
+
+
+
+                <button type="button" class="btn btn-default" onclick="queryUser()">查询</button>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+    <table class="table table-condensed table-bordered" style="text-align: center;position: absolute;top: 125px;left: 10px">
+        <thead>
+        <tr >
+            <th style="text-align: center">
+                <input type="checkbox" id="selectAll">
+            </th>
+            <th style="text-align: center">
+              条目
+            </th >
+            <th style="text-align: center">
+              姓名
+            </th>
+
+            <th style="text-align: center">
+              性别
+            </th>
+            <th style="text-align: center">
+              年龄
+            </th>
+          <th style="text-align: center">
+            工号
+          </th>
+          <th style="text-align: center">
+            部门
+          </th>
+          <th style="text-align: center">
+            职务
+          </th>
+            <th style="text-align: center">
+                联系方式
+            </th>
+            <th style="text-align: center">
+                今日跟进
+            </th>
+          <th style="text-align: center">
+            操作
+          </th>
+
+        </tr>
+        </thead>
+        <tbody id="tb">
+
+        </tbody>
+
+    </table>
+<div id="page" style="margin-top: 75px;margin-left: -230px"></div>
+</body>
+
+</html>

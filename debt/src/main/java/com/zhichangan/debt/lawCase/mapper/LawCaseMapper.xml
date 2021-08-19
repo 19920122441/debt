@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhichangan.debt.lawCase.mapper.LawCaseMapper">
+  <resultMap id="BaseResultMap" type="com.zhichangan.debt.lawCase.entity.LawCase">
+    <id column="id" jdbcType="CHAR" property="id" />
+    <result column="owner" jdbcType="CHAR" property="owner" />
+    <result column="card_id" jdbcType="CHAR" property="cardId" />
+    <result column="card_bank" jdbcType="CHAR" property="cardBank" />
+    <result column="card_money" jdbcType="DECIMAL" property="cardMoney" />
+    <result column="card_overdue_time" jdbcType="CHAR" property="cardOverdueTime" />
+    <result column="card_create_time" jdbcType="CHAR" property="cardCreateTime" />
+    <result column="card_create_bank" jdbcType="VARCHAR" property="cardCreateBank" />
+    <result column="card_max_reduction" jdbcType="DECIMAL" property="cardMaxReduction" />
+    <result column="lawcase_owner_id" jdbcType="CHAR" property="lawcaseOwnerId" />
+    <result column="lawcase_owner_name" jdbcType="CHAR" property="lawcaseOwnerName" />
+    <result column="lawcase_owner_age" jdbcType="CHAR" property="lawcaseOwnerAge" />
+    <result column="lawcase_owner_sex" jdbcType="CHAR" property="lawcaseOwnerSex" />
+    <result column="lawcase_owner_address" jdbcType="VARCHAR" property="lawcaseOwnerAddress" />
+    <result column="state" jdbcType="CHAR" property="state" />
+    <result column="next_call_time" jdbcType="CHAR" property="nextCallTime" />
+    <result column="color" jdbcType="CHAR" property="color" />
+    <result column="lawcase_level" jdbcType="CHAR" property="lawcaseLevel" />
+    <result column="card_interest" jdbcType="DECIMAL" property="cardInterest" />
+    <result column="card_latefee" jdbcType="DECIMAL" property="cardLatefee" />
+    <result column="last_call_time" jdbcType="CHAR" property="lastCallTime" />
+    <result column="lawcase_id" jdbcType="CHAR" property="lawcaseId" />
+    <result column="lawcase_owner_work" jdbcType="CHAR" property="lawcaseOwnerWork" />
+    <result column="lawcase_owner_work_address" jdbcType="VARCHAR" property="lawcaseOwnerWorkAddress" />
+    <result column="lawcase_owner_job" jdbcType="VARCHAR" property="lawcaseOwnerJob" />
+    <result column="card_list_address" jdbcType="VARCHAR" property="cardListAddress" />
+    <result column="card_list_day" jdbcType="CHAR" property="cardListDay" />
+    <result column="lawcase_owner_now_address" jdbcType="VARCHAR" property="lawcaseOwnerNowAddress" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, owner, card_id, card_bank, card_money, card_overdue_time, card_create_time, card_create_bank, 
+    card_max_reduction, lawcase_owner_id, lawcase_owner_name, lawcase_owner_age, lawcase_owner_sex, 
+    lawcase_owner_address, state, next_call_time, color, lawcase_level, card_interest, 
+    card_latefee, last_call_time, lawcase_id, lawcase_owner_work, lawcase_owner_work_address, 
+    lawcase_owner_job, card_list_address, card_list_day, lawcase_owner_now_address
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tbl_lawcase
+    where id = #{id,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from tbl_lawcase
+    where id = #{id,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.zhichangan.debt.lawCase.entity.LawCase">
+    insert into tbl_lawcase (id, owner, card_id, card_bank, 
+      card_money, card_overdue_time, card_create_time, 
+      card_create_bank, card_max_reduction, lawcase_owner_id, 
+      lawcase_owner_name, lawcase_owner_age, lawcase_owner_sex, 
+      lawcase_owner_address, state, next_call_time, 
+      color, lawcase_level, card_interest, 
+      card_latefee, last_call_time, lawcase_id, 
+      lawcase_owner_work, lawcase_owner_work_address, 
+      lawcase_owner_job, card_list_address, card_list_day, 
+      lawcase_owner_now_address)
+    values (#{id,jdbcType=CHAR}, #{owner,jdbcType=CHAR}, #{cardId,jdbcType=CHAR}, #{cardBank,jdbcType=CHAR}, 
+      #{cardMoney,jdbcType=DECIMAL}, #{cardOverdueTime,jdbcType=CHAR}, #{cardCreateTime,jdbcType=CHAR}, 
+      #{cardCreateBank,jdbcType=VARCHAR}, #{cardMaxReduction,jdbcType=DECIMAL}, #{lawcaseOwnerId,jdbcType=CHAR}, 
+      #{lawcaseOwnerName,jdbcType=CHAR}, #{lawcaseOwnerAge,jdbcType=CHAR}, #{lawcaseOwnerSex,jdbcType=CHAR}, 
+      #{lawcaseOwnerAddress,jdbcType=VARCHAR}, #{state,jdbcType=CHAR}, #{nextCallTime,jdbcType=CHAR}, 
+      #{color,jdbcType=CHAR}, #{lawcaseLevel,jdbcType=CHAR}, #{cardInterest,jdbcType=DECIMAL}, 
+      #{cardLatefee,jdbcType=DECIMAL}, #{lastCallTime,jdbcType=CHAR}, #{lawcaseId,jdbcType=CHAR}, 
+      #{lawcaseOwnerWork,jdbcType=CHAR}, #{lawcaseOwnerWorkAddress,jdbcType=VARCHAR}, 
+      #{lawcaseOwnerJob,jdbcType=VARCHAR}, #{cardListAddress,jdbcType=VARCHAR}, #{cardListDay,jdbcType=CHAR}, 
+      #{lawcaseOwnerNowAddress,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.zhichangan.debt.lawCase.entity.LawCase">
+    insert into tbl_lawcase
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="owner != null">
+        owner,
+      </if>
+      <if test="cardId != null">
+        card_id,
+      </if>
+      <if test="cardBank != null">
+        card_bank,
+      </if>
+      <if test="cardMoney != null">
+        card_money,
+      </if>
+      <if test="cardOverdueTime != null">
+        card_overdue_time,
+      </if>
+      <if test="cardCreateTime != null">
+        card_create_time,
+      </if>
+      <if test="cardCreateBank != null">
+        card_create_bank,
+      </if>
+      <if test="cardMaxReduction != null">
+        card_max_reduction,
+      </if>
+      <if test="lawcaseOwnerId != null">
+        lawcase_owner_id,
+      </if>
+      <if test="lawcaseOwnerName != null">
+        lawcase_owner_name,
+      </if>
+      <if test="lawcaseOwnerAge != null">
+        lawcase_owner_age,
+      </if>
+      <if test="lawcaseOwnerSex != null">
+        lawcase_owner_sex,
+      </if>
+      <if test="lawcaseOwnerAddress != null">
+        lawcase_owner_address,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="nextCallTime != null">
+        next_call_time,
+      </if>
+      <if test="color != null">
+        color,
+      </if>
+      <if test="lawcaseLevel != null">
+        lawcase_level,
+      </if>
+      <if test="cardInterest != null">
+        card_interest,
+      </if>
+      <if test="cardLatefee != null">
+        card_latefee,
+      </if>
+      <if test="lastCallTime != null">
+        last_call_time,
+      </if>
+      <if test="lawcaseId != null">
+        lawcase_id,
+      </if>
+      <if test="lawcaseOwnerWork != null">
+        lawcase_owner_work,
+      </if>
+      <if test="lawcaseOwnerWorkAddress != null">
+        lawcase_owner_work_address,
+      </if>
+      <if test="lawcaseOwnerJob != null">
+        lawcase_owner_job,
+      </if>
+      <if test="cardListAddress != null">
+        card_list_address,
+      </if>
+      <if test="cardListDay != null">
+        card_list_day,
+      </if>
+      <if test="lawcaseOwnerNowAddress != null">
+        lawcase_owner_now_address,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=CHAR},
+      </if>
+      <if test="owner != null">
+        #{owner,jdbcType=CHAR},
+      </if>
+      <if test="cardId != null">
+        #{cardId,jdbcType=CHAR},
+      </if>
+      <if test="cardBank != null">
+        #{cardBank,jdbcType=CHAR},
+      </if>
+      <if test="cardMoney != null">
+        #{cardMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="cardOverdueTime != null">
+        #{cardOverdueTime,jdbcType=CHAR},
+      </if>
+      <if test="cardCreateTime != null">
+        #{cardCreateTime,jdbcType=CHAR},
+      </if>
+      <if test="cardCreateBank != null">
+        #{cardCreateBank,jdbcType=VARCHAR},
+      </if>
+      <if test="cardMaxReduction != null">
+        #{cardMaxReduction,jdbcType=DECIMAL},
+      </if>
+      <if test="lawcaseOwnerId != null">
+        #{lawcaseOwnerId,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseOwnerName != null">
+        #{lawcaseOwnerName,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseOwnerAge != null">
+        #{lawcaseOwnerAge,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseOwnerSex != null">
+        #{lawcaseOwnerSex,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseOwnerAddress != null">
+        #{lawcaseOwnerAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=CHAR},
+      </if>
+      <if test="nextCallTime != null">
+        #{nextCallTime,jdbcType=CHAR},
+      </if>
+      <if test="color != null">
+        #{color,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseLevel != null">
+        #{lawcaseLevel,jdbcType=CHAR},
+      </if>
+      <if test="cardInterest != null">
+        #{cardInterest,jdbcType=DECIMAL},
+      </if>
+      <if test="cardLatefee != null">
+        #{cardLatefee,jdbcType=DECIMAL},
+      </if>
+      <if test="lastCallTime != null">
+        #{lastCallTime,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseId != null">
+        #{lawcaseId,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseOwnerWork != null">
+        #{lawcaseOwnerWork,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseOwnerWorkAddress != null">
+        #{lawcaseOwnerWorkAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="lawcaseOwnerJob != null">
+        #{lawcaseOwnerJob,jdbcType=VARCHAR},
+      </if>
+      <if test="cardListAddress != null">
+        #{cardListAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="cardListDay != null">
+        #{cardListDay,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseOwnerNowAddress != null">
+        #{lawcaseOwnerNowAddress,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zhichangan.debt.lawCase.entity.LawCase">
+    update tbl_lawcase
+    <set>
+      <if test="owner != null">
+        owner = #{owner,jdbcType=CHAR},
+      </if>
+      <if test="cardId != null">
+        card_id = #{cardId,jdbcType=CHAR},
+      </if>
+      <if test="cardBank != null">
+        card_bank = #{cardBank,jdbcType=CHAR},
+      </if>
+      <if test="cardMoney != null">
+        card_money = #{cardMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="cardOverdueTime != null">
+        card_overdue_time = #{cardOverdueTime,jdbcType=CHAR},
+      </if>
+      <if test="cardCreateTime != null">
+        card_create_time = #{cardCreateTime,jdbcType=CHAR},
+      </if>
+      <if test="cardCreateBank != null">
+        card_create_bank = #{cardCreateBank,jdbcType=VARCHAR},
+      </if>
+      <if test="cardMaxReduction != null">
+        card_max_reduction = #{cardMaxReduction,jdbcType=DECIMAL},
+      </if>
+      <if test="lawcaseOwnerId != null">
+        lawcase_owner_id = #{lawcaseOwnerId,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseOwnerName != null">
+        lawcase_owner_name = #{lawcaseOwnerName,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseOwnerAge != null">
+        lawcase_owner_age = #{lawcaseOwnerAge,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseOwnerSex != null">
+        lawcase_owner_sex = #{lawcaseOwnerSex,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseOwnerAddress != null">
+        lawcase_owner_address = #{lawcaseOwnerAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=CHAR},
+      </if>
+      <if test="nextCallTime != null">
+        next_call_time = #{nextCallTime,jdbcType=CHAR},
+      </if>
+      <if test="color != null">
+        color = #{color,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseLevel != null">
+        lawcase_level = #{lawcaseLevel,jdbcType=CHAR},
+      </if>
+      <if test="cardInterest != null">
+        card_interest = #{cardInterest,jdbcType=DECIMAL},
+      </if>
+      <if test="cardLatefee != null">
+        card_latefee = #{cardLatefee,jdbcType=DECIMAL},
+      </if>
+      <if test="lastCallTime != null">
+        last_call_time = #{lastCallTime,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseId != null">
+        lawcase_id = #{lawcaseId,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseOwnerWork != null">
+        lawcase_owner_work = #{lawcaseOwnerWork,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseOwnerWorkAddress != null">
+        lawcase_owner_work_address = #{lawcaseOwnerWorkAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="lawcaseOwnerJob != null">
+        lawcase_owner_job = #{lawcaseOwnerJob,jdbcType=VARCHAR},
+      </if>
+      <if test="cardListAddress != null">
+        card_list_address = #{cardListAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="cardListDay != null">
+        card_list_day = #{cardListDay,jdbcType=CHAR},
+      </if>
+      <if test="lawcaseOwnerNowAddress != null">
+        lawcase_owner_now_address = #{lawcaseOwnerNowAddress,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zhichangan.debt.lawCase.entity.LawCase">
+    update tbl_lawcase
+    set owner = #{owner,jdbcType=CHAR},
+      card_id = #{cardId,jdbcType=CHAR},
+      card_bank = #{cardBank,jdbcType=CHAR},
+      card_money = #{cardMoney,jdbcType=DECIMAL},
+      card_overdue_time = #{cardOverdueTime,jdbcType=CHAR},
+      card_create_time = #{cardCreateTime,jdbcType=CHAR},
+      card_create_bank = #{cardCreateBank,jdbcType=VARCHAR},
+      card_max_reduction = #{cardMaxReduction,jdbcType=DECIMAL},
+      lawcase_owner_id = #{lawcaseOwnerId,jdbcType=CHAR},
+      lawcase_owner_name = #{lawcaseOwnerName,jdbcType=CHAR},
+      lawcase_owner_age = #{lawcaseOwnerAge,jdbcType=CHAR},
+      lawcase_owner_sex = #{lawcaseOwnerSex,jdbcType=CHAR},
+      lawcase_owner_address = #{lawcaseOwnerAddress,jdbcType=VARCHAR},
+      state = #{state,jdbcType=CHAR},
+      next_call_time = #{nextCallTime,jdbcType=CHAR},
+      color = #{color,jdbcType=CHAR},
+      lawcase_level = #{lawcaseLevel,jdbcType=CHAR},
+      card_interest = #{cardInterest,jdbcType=DECIMAL},
+      card_latefee = #{cardLatefee,jdbcType=DECIMAL},
+      last_call_time = #{lastCallTime,jdbcType=CHAR},
+      lawcase_id = #{lawcaseId,jdbcType=CHAR},
+      lawcase_owner_work = #{lawcaseOwnerWork,jdbcType=CHAR},
+      lawcase_owner_work_address = #{lawcaseOwnerWorkAddress,jdbcType=VARCHAR},
+      lawcase_owner_job = #{lawcaseOwnerJob,jdbcType=VARCHAR},
+      card_list_address = #{cardListAddress,jdbcType=VARCHAR},
+      card_list_day = #{cardListDay,jdbcType=CHAR},
+      lawcase_owner_now_address = #{lawcaseOwnerNowAddress,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <select id="selective" parameterType="com.zhichangan.debt.lawCase.entity.LawCase" resultMap="BaseResultMap">
+  select *from
+  tbl_lawcase
+  <where>
+    <if test="id != null and id != ''">
+      and id=#{id}
+    </if>
+    <if test="owner != null and owner != ''">
+      and owner=#{owner}
+    </if>
+    <if test="cardId != null and cardId != ''">
+      and card_id=#{cardId}
+    </if>
+    <if test="cardBank != null and cardBank != ''">
+      and card_bank=#{cardBank}
+    </if>
+    <if test="cardMoney != null and cardMoney != ''">
+      and card_money=#{cardMoney}
+    </if>
+    <if test="cardOverdueTime != null and cardOverdueTime!=''">
+      and card_overdue_time=#{cardOverdueTime}
+    </if>
+    <if test="cardCreateTime != null and cardCreateTime!=''">
+      and card_create_time=#{cardCreateTime}
+    </if>
+    <if test="cardCreateBank != null and cardCreateBank!=''">
+      and card_create_bank=#{cardCreateBank}
+    </if>
+    <if test="cardMaxReduction != null and cardMaxReduction!=''">
+      and card_max_reduction=#{cardMaxReduction}
+    </if>
+    <if test="cardMaxReduction != null and cardMaxReduction!=''">
+      and card_max_reduction=#{cardMaxReduction}
+    </if>
+    <if test="lawcaseOwnerId != null and lawcaseOwnerId!=''">
+      and lawcase_owner_id=#{lawcaseOwnerId}
+    </if>
+    <if test="lawcaseOwnerName != null and lawcaseOwnerName!=''">
+      and lawcase_owner_name=#{lawcaseOwnerName}
+    </if>
+    <if test="lawcaseOwnerAge != null and lawcaseOwnerAge!=''">
+      and lawcase_owner_age=#{lawcaseOwnerAge}
+    </if>
+    <if test="lawcaseOwnerSex != null and lawcaseOwnerSex!=''">
+      and lawcase_owner_sex=#{lawcaseOwnerSex}
+    </if>
+    <if test="lawcaseOwnerAddress != null and lawcaseOwnerAddress!=''">
+      and lawcase_owner_address=#{lawcaseOwnerAddress}
+    </if>
+    <if test="state != null and state !=''">
+      and state=#{state}
+    </if>
+    <if test="nextCallTime != null and nextCallTime !=''">
+      and next_call_time=#{nextCallTime}
+    </if>
+    <if test="lawcaseLevel != null and lawcaseLevel!=''">
+      and lawcase_level=#{lawcaseLevel}
+    </if>
+    <if test="color != null and color !=''">
+      and color=#{color}
+    </if>
+    <if test="lawcaseId != null and lawcaseId!=''">
+      and lawcase_id=#{lawcaseId}
+    </if>
+    <if test="lastCallTime != null and lastCallTime!=''">
+      and last_call_time=#{lastCallTime}
+    </if>
+    <if test="cardInterest != null and cardInterest!=''">
+      and card_interest=#{cardInterest}
+    </if>
+    <if test="cardLatefee != null and cardLatefee!=''">
+      and card_latefee=#{cardLatefee}
+    </if>
+
+
+  </where>
+  </select>
+
+  <select id="count" resultType="int">
+    select count(*) from tbl_lawcase
+  </select>
+  <select id="page" resultMap="BaseResultMap">
+    select *from tbl_lawcase
+    limit #{page},#{ipageSize}
+  </select>
+  <select id="queryTodayCallLawCase" resultMap="BaseResultMap">
+    select *from tbl_lawcase where owner=#{owner} and STR_TO_DATE(next_call_time,'%Y-%m-%d') &lt; STR_TO_DATE(#{nextCallTime},'%Y-%m-%d')
+  </select>
+  <select id="getPublicLawCase" resultMap="BaseResultMap">
+    select id from tbl_lawcase where owner='cc2380d603454615ba7f036d40584522'
+  </select>
+  <select id="countByOwner" resultType="int">
+    select count(id) from tbl_lawcase where owner=#{userId}
+  </select>
+  <select id="pageByOwner" resultMap="BaseResultMap">
+    select *from tbl_lawcase where owner=#{userId} limit #{page},#{ipageSize}
+  </select>
+  <select id="queryAllLawCase" resultMap="BaseResultMap">
+    select *from tbl_lawcase
+  </select>
+  <select id="queryNotOwnerBank" resultType="string">
+    select card_bank from tbl_lawcase where owner='cc2380d603454615ba7f036d40584522' group by card_bank
+  </select>
+  <select id="queryNotOwnerByBank" resultMap="BaseResultMap">
+    select *from tbl_lawcase where owner='cc2380d603454615ba7f036d40584522' and card_bank=#{bank}
+  </select>
+  <select id="queryTodayCallNumberByUserId" resultType="int">
+    select count(*) from tbl_lawcase where str_to_date(last_call_time,'%Y-%m-%d') = STR_TO_DATE(#{moring},'%Y-%m-%d') and owner=#{id}
+  </select>
+  <select id="queryLawcaseByCardIdAndLawCaseId" resultMap="BaseResultMap">
+    select *from tbl_lawcase where card_id=#{cardId} and lawcase_id=#{lawcaseId}
+  </select>
+</mapper>

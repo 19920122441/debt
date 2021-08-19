@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhichangan.debt.userMailRelationship.mapper.UserMailRelationshipMapper">
+  <resultMap id="BaseResultMap" type="com.zhichangan.debt.userMailRelationship.entity.UserMailRelationship">
+    <id column="id" jdbcType="CHAR" property="id" />
+    <result column="user_id" jdbcType="CHAR" property="userId" />
+    <result column="mail_id" jdbcType="CHAR" property="mailId" />
+    <result column="state" jdbcType="CHAR" property="state" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, mail_id, state
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tbl_user_mail_relationship
+    where id = #{id,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from tbl_user_mail_relationship
+    where id = #{id,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.zhichangan.debt.userMailRelationship.entity.UserMailRelationship">
+    insert into tbl_user_mail_relationship (id, user_id, mail_id, state
+      )
+    values (#{id,jdbcType=CHAR}, #{userId,jdbcType=CHAR}, #{mailId,jdbcType=CHAR}, #{state,jdbcType=CHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.zhichangan.debt.userMailRelationship.entity.UserMailRelationship">
+    insert into tbl_user_mail_relationship
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="mailId != null">
+        mail_id,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=CHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=CHAR},
+      </if>
+      <if test="mailId != null">
+        #{mailId,jdbcType=CHAR},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zhichangan.debt.userMailRelationship.entity.UserMailRelationship">
+    update tbl_user_mail_relationship
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=CHAR},
+      </if>
+      <if test="mailId != null">
+        mail_id = #{mailId,jdbcType=CHAR},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=CHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zhichangan.debt.userMailRelationship.entity.UserMailRelationship">
+    update tbl_user_mail_relationship
+    set user_id = #{userId,jdbcType=CHAR},
+      mail_id = #{mailId,jdbcType=CHAR},
+      state = #{state,jdbcType=CHAR}
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <select id="queryRelationshipByMailId" resultMap="BaseResultMap">
+    select *from tbl_user_mail_relationship
+ where mail_id=#{mailId}
+  </select>
+  <select id="queryRelationshipByUserId" resultMap="BaseResultMap">
+    select *from tbl_user_mail_relationship where user_id =#{id}
+  </select>
+  <select id="pageQueryRelationshipByUserId" resultMap="BaseResultMap">
+    select *from tbl_user_mail_relationship where user_id =#{id} limit #{number},#{pageSize}
+  </select>
+  <delete id="deleteByUserIdAndMailId" >
+    delete from tbl_user_mail_relationship where user_id=#{id} and mail_id=#{mailId}
+  </delete>
+  <select id="queryRelationshipByMailIdAndUserId" resultMap="BaseResultMap">
+    select *from tbl_user_mail_relationship where user_id=#{id} and mail_id=#{mailId}
+  </select>
+</mapper>

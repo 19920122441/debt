@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<link th:href="@{/jquery/bootstrap_3.3.0/css/bootstrap.min.css}" type="text/css" rel="stylesheet" />
+	<style>
+
+	</style>
+<script type="text/javascript" th:src="@{/jquery/jquery-1.11.1-min.js}"></script>
+<script type="text/javascript" th:src="@{/jquery/bootstrap_3.3.0/js/bootstrap.min.js}"></script>
+	<script type="text/javascript" th:src="@{/echarts.min.js}"></script>
+	<script type="text/javascript" th:inline="javascript">
+		$(function (){
+			main();
+			main2();
+			//为maillist添加鼠标悬停事件
+
+			$(".lsit").hover(function () {
+				$(this).parent().css("color","blue")
+				$(this).parent().css("text-decoration","underline")
+				$(this).parent().css("cursor","pointer")
+
+			})
+			//为mailList添加鼠标离开事件
+			$(".lsit").mouseout(function () {
+				$(this).parent().css("color","black")
+				$(this).parent().css("text-decoration","none")
+			})
+
+			function main(){
+				var chartDom = document.getElementById('main');
+				var myChart = echarts.init(chartDom);
+				var option;
+				var user=[[${#session.getAttribute("user")}]]
+				var achList=new Array();
+				achList.push(user.ach5)
+				achList.push(user.ach4)
+				achList.push(user.ach3)
+				achList.push(user.ach2)
+				achList.push(user.ach1)
+				option = {
+					title: {
+						text: '    我的还款'
+					},
+					xAxis: {
+						type: 'category',
+						data: [ '四月前', '三月前', '两月前', '一月前','当月']
+					},
+					yAxis: {
+						type: 'value'
+					},
+					series: [{
+						data: achList,
+						type: 'line'
+					}]
+				};
+
+				option && myChart.setOption(option);
+			}
+			function main2(){
+				var chartDom = document.getElementById('main2');
+				var myChart = echarts.init(chartDom);
+				var option;
+				var user=[[${#session.getAttribute("user")}]]
+				var achList=new Array();
+				achList.push(user.com5)
+				achList.push(user.com4)
+				achList.push(user.com3)
+				achList.push(user.com2)
+				achList.push(user.com1)
+				option = {
+					title: {
+						text: '    我的佣金'
+					},
+					xAxis: {
+						type: 'category',
+						data: [ '四月前', '三月前', '两月前', '一月前','当月']
+					},
+					yAxis: {
+						type: 'value'
+					},
+					series: [{
+						data: achList,
+						type: 'bar',
+						showBackground: true,
+						backgroundStyle: {
+							color: 'rgba(180, 180, 180, 0.2)'
+						}
+					}]
+				};
+
+				option && myChart.setOption(option);
+
+			}
+			$(".lsitT").click(function (){
+
+				var dom=$(this).find("a").get(0)
+				dom.click();
+
+			})
+			$(".elsitT").click(function (){
+
+				var dom=$(this).find("a").get(0)
+				dom.click();
+			})
+		})
+
+
+	</script>
+</head>
+<body th:inline="text">
+<div class="container">
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<h3>
+				欢迎你，[[${#session.getAttribute("user").name}]]!
+			</h3>
+			<hr>
+			<div  id="main" style="width: 500px;height: 350px">
+				<p style="margin-bottom: 10px">213213213</p>
+			</div>
+			<div  id="main2" style="width: 500px;height: 353px;position: absolute;right: 100px;top: 94px" >
+
+			</div>
+			<div class="page-header" style="margin-top: 10px">
+				<h4>
+					<b>今日待跟进</b>
+				</h4>
+			</div>
+			<table  class="table table-condensed table-bordered" style="text-align: center">
+				<thead>
+				<tr style="text-align: center">
+					<th style="text-align: center">
+						条目
+					</th>
+					<th style="text-align: center">
+						债务人
+					</th>
+					<th style="text-align: center">
+						逾期账号
+					</th>
+					<th style="text-align: center">
+						欠款金额
+					</th>
+					<th style="text-align: center">
+						最大减免额度
+					</th>
+					<th style="text-align: center">
+						委案银行
+					</th>
+					<th style="text-align: center">
+						案件状态
+					</th>
+				</tr>
+				</thead>
+				<tbody th:each="lawcase:${lawCaseList}">
+				<tr  class="lsitT" th:data-id="${lawcase.id}">
+					<td class="lsit" th:text="${lawcaseStat.count}">
+						1
+					</td>
+					<td class="lsit" th:text="${lawcase.getLawcaseOwnerName()}">
+						粗惠康
+					</td>
+					<td class="lsit" th:text="${lawcase.getCardId()}">
+						1231231231231321321
+					</td>
+					<td class="lsit" th:text="${lawcase.getCardMoney()}">
+						100.00
+					</td>
+					<td class="lsit" th:text="${lawcase.getCardMaxReduction()}">
+						123.00
+					</td>
+					<td class="lsit" th:text="${lawcase.getCardBank()}">
+						兴业银行
+					</td>
+					<td class="lsit" th:text="${lawcase.getState()}">
+						谈判
+					</td>
+					<td class="lsit" style="display: none" >
+						<a th:href="@{/lawCase/detail(id=${lawcase.getId()})}" \></a>
+					</td>
+
+				</tr>
+				</tbody>
+			</table>
+			<div class="page-header" >
+				<h4>
+					<b>未读邮件</b>
+				</h4>
+			</div>
+			<table class="table table-condensed table-bordered" style="text-align: center">
+				<thead>
+				<tr >
+					<th style="text-align: center">
+						条目
+					</th >
+					<th style="text-align: center">
+						标题
+					</th>
+					<th style="text-align: center">
+						发件人
+					</th>
+					<th style="text-align: center">
+						时间
+					</th>
+					<th style="text-align: center">
+						状态
+					</th>
+				</tr>
+				</thead>
+				<tbody th:each="mail:${mailList}">
+				<tr class="elsitT" >
+					<td class="lsit" th:text="${mailStat.count}" >
+						条目
+					</td>
+					<td class="lsit" th:text="${mail.getTitle()}" >
+						标题
+					</td >
+					<td class="lsit" th:text="${mail.getResourceName()}" >
+						发件人
+					</td>
+					<td class="lsit" th:text="${mail.getTime()}" >
+						时间
+					</td>
+					<td class="lsit" th:text="${mail.state}" >
+						已读
+					</td>
+					<td class="lsit" style="display: none"  >
+						<a  th:href="@{/mail/detail(mailId=${mail.id})}" \></a>
+					</td>
+
+
+				</tr>
+				</tbody>
+
+			</table>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>

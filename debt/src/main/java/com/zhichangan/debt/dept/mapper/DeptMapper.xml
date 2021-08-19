@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhichangan.debt.dept.mapper.DeptMapper">
+  <resultMap id="BaseResultMap" type="com.zhichangan.debt.dept.entity.Dept">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="CHAR" property="name" />
+    <result column="manager_id" jdbcType="VARCHAR" property="managerId" />
+    <result column="com1" jdbcType="DECIMAL" property="com1" />
+    <result column="com2" jdbcType="DECIMAL" property="com2" />
+    <result column="com3" jdbcType="DECIMAL" property="com3" />
+    <result column="com4" jdbcType="DECIMAL" property="com4" />
+    <result column="com5" jdbcType="DECIMAL" property="com5" />
+    <result column="ach1" jdbcType="DECIMAL" property="ach1" />
+    <result column="ach2" jdbcType="DECIMAL" property="ach2" />
+    <result column="ach3" jdbcType="DECIMAL" property="ach3" />
+    <result column="ach4" jdbcType="DECIMAL" property="ach4" />
+    <result column="ach5" jdbcType="DECIMAL" property="ach5" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, name, manager_id, com1, com2, com3, com4, com5, ach1, ach2, ach3, ach4, ach5
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tbl_dept
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from tbl_dept
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.zhichangan.debt.dept.entity.Dept">
+    insert into tbl_dept (id, name, manager_id, 
+      com1, com2, com3, com4, 
+      com5, ach1, ach2, ach3, 
+      ach4, ach5)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=CHAR}, #{managerId,jdbcType=VARCHAR}, 
+      #{com1,jdbcType=DECIMAL}, #{com2,jdbcType=DECIMAL}, #{com3,jdbcType=DECIMAL}, #{com4,jdbcType=DECIMAL}, 
+      #{com5,jdbcType=DECIMAL}, #{ach1,jdbcType=DECIMAL}, #{ach2,jdbcType=DECIMAL}, #{ach3,jdbcType=DECIMAL}, 
+      #{ach4,jdbcType=DECIMAL}, #{ach5,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.zhichangan.debt.dept.entity.Dept">
+    insert into tbl_dept
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="managerId != null">
+        manager_id,
+      </if>
+      <if test="com1 != null">
+        com1,
+      </if>
+      <if test="com2 != null">
+        com2,
+      </if>
+      <if test="com3 != null">
+        com3,
+      </if>
+      <if test="com4 != null">
+        com4,
+      </if>
+      <if test="com5 != null">
+        com5,
+      </if>
+      <if test="ach1 != null">
+        ach1,
+      </if>
+      <if test="ach2 != null">
+        ach2,
+      </if>
+      <if test="ach3 != null">
+        ach3,
+      </if>
+      <if test="ach4 != null">
+        ach4,
+      </if>
+      <if test="ach5 != null">
+        ach5,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=CHAR},
+      </if>
+      <if test="managerId != null">
+        #{managerId,jdbcType=VARCHAR},
+      </if>
+      <if test="com1 != null">
+        #{com1,jdbcType=DECIMAL},
+      </if>
+      <if test="com2 != null">
+        #{com2,jdbcType=DECIMAL},
+      </if>
+      <if test="com3 != null">
+        #{com3,jdbcType=DECIMAL},
+      </if>
+      <if test="com4 != null">
+        #{com4,jdbcType=DECIMAL},
+      </if>
+      <if test="com5 != null">
+        #{com5,jdbcType=DECIMAL},
+      </if>
+      <if test="ach1 != null">
+        #{ach1,jdbcType=DECIMAL},
+      </if>
+      <if test="ach2 != null">
+        #{ach2,jdbcType=DECIMAL},
+      </if>
+      <if test="ach3 != null">
+        #{ach3,jdbcType=DECIMAL},
+      </if>
+      <if test="ach4 != null">
+        #{ach4,jdbcType=DECIMAL},
+      </if>
+      <if test="ach5 != null">
+        #{ach5,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zhichangan.debt.dept.entity.Dept">
+    update tbl_dept
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=CHAR},
+      </if>
+      <if test="managerId != null">
+        manager_id = #{managerId,jdbcType=VARCHAR},
+      </if>
+      <if test="com1 != null">
+        com1 = #{com1,jdbcType=DECIMAL},
+      </if>
+      <if test="com2 != null">
+        com2 = #{com2,jdbcType=DECIMAL},
+      </if>
+      <if test="com3 != null">
+        com3 = #{com3,jdbcType=DECIMAL},
+      </if>
+      <if test="com4 != null">
+        com4 = #{com4,jdbcType=DECIMAL},
+      </if>
+      <if test="com5 != null">
+        com5 = #{com5,jdbcType=DECIMAL},
+      </if>
+      <if test="ach1 != null">
+        ach1 = #{ach1,jdbcType=DECIMAL},
+      </if>
+      <if test="ach2 != null">
+        ach2 = #{ach2,jdbcType=DECIMAL},
+      </if>
+      <if test="ach3 != null">
+        ach3 = #{ach3,jdbcType=DECIMAL},
+      </if>
+      <if test="ach4 != null">
+        ach4 = #{ach4,jdbcType=DECIMAL},
+      </if>
+      <if test="ach5 != null">
+        ach5 = #{ach5,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zhichangan.debt.dept.entity.Dept">
+    update tbl_dept
+    set name = #{name,jdbcType=CHAR},
+      manager_id = #{managerId,jdbcType=VARCHAR},
+      com1 = #{com1,jdbcType=DECIMAL},
+      com2 = #{com2,jdbcType=DECIMAL},
+      com3 = #{com3,jdbcType=DECIMAL},
+      com4 = #{com4,jdbcType=DECIMAL},
+      com5 = #{com5,jdbcType=DECIMAL},
+      ach1 = #{ach1,jdbcType=DECIMAL},
+      ach2 = #{ach2,jdbcType=DECIMAL},
+      ach3 = #{ach3,jdbcType=DECIMAL},
+      ach4 = #{ach4,jdbcType=DECIMAL},
+      ach5 = #{ach5,jdbcType=DECIMAL}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <select id="queryAllDept" resultMap="BaseResultMap">
+    select * from tbl_dept
+  </select>
+
+</mapper>

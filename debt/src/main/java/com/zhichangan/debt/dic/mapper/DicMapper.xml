@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhichangan.debt.dic.mapper.DicMapper">
+  <resultMap id="BaseResultMap" type="com.zhichangan.debt.dic.entity.Dic">
+    <result column="id" jdbcType="CHAR" property="id" />
+    <result column="type" jdbcType="CHAR" property="type" />
+    <result column="value" jdbcType="CHAR" property="value" />
+  </resultMap>
+  <insert id="insert" parameterType="com.zhichangan.debt.dic.entity.Dic">
+    insert into tbl_dic (id, type, value)
+    values (#{id,jdbcType=CHAR}, #{type,jdbcType=CHAR}, #{value,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.zhichangan.debt.dic.entity.Dic">
+    insert into tbl_dic
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="value != null">
+        value,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=CHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=CHAR},
+      </if>
+      <if test="value != null">
+        #{value,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <select id="getAll" resultType="com.zhichangan.debt.dic.entity.Dic">
+    select *from tbl_dic group by type
+  </select>
+</mapper>

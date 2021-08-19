@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+<meta charset="UTF-8">
+
+<link th:href="@{/jquery/bootstrap_3.3.0/css/bootstrap.min.css}" type="text/css" rel="stylesheet" />
+<script type="text/javascript" th:src="@{/jquery/jquery-1.11.1-min.js}"></script>
+<script type="text/javascript" th:src="@{/jquery/bootstrap_3.3.0/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/xlPaging.js}"></script>
+<script type="text/javascript" th:src="@{/jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js}"></script>
+	<link th:href="@{/jquery/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css}" type="text/css" rel="stylesheet">
+
+
+	<style>
+
+		#page {
+			margin: 20px auto;
+			color: #666;
+			display: block;
+			text-align: center;
+			margin-bottom: 40px;
+		}
+
+		#page li {
+			display: inline-block;
+			min-width: 50px;
+			height: 30px;
+			cursor: pointer;
+			color: #666;
+			font-size: 13px;
+			line-height: 28px;
+			background-color: #f9f9f9;
+			border: 1px solid #dce0e0;
+			text-align: center;
+			margin: 0 4px;
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			appearance: none;
+			border-radius: 2px;
+			position: relative;
+			left: -430px;
+			bottom: -10px;
+		}
+
+		.xl-nextPage,
+		.xl-prevPage {
+			width: 60px;
+			color: #418ac8FF;
+			height: 28px;
+		}
+
+		#page li.xl-disabled {
+			opacity: .5;
+			cursor: no-drop;
+		}
+
+		#page li.xl-disabled:hover{
+			background-color: #f9f9f9 !important;
+			border: 1px solid #dce0e0 !important;
+			color: #666 !important;
+		}
+
+		#page li.xl-active {
+			background-color: #418ac8FF;
+			border-color: #418ac8FF;
+			color: #FFF
+		}
+
+		#page li:hover{
+			background-color: #418ac8FF !important;
+			border-color: #418ac8FF;
+			color: #FFF
+		}
+
+		#page li.xl-jumpText {
+			background-color: rgba(0,0,0,0);
+			border-color: rgba(0,0,0,0);
+			opacity: 1;
+		}
+
+		#page li.xl-jumpText:hover{
+			background-color: rgba(0,0,0,0) !important;
+			border-color: rgba(0,0,0,0) !important;
+		}
+
+		#page li.xl-jumpButton{
+			padding: 0 5px;
+		}
+
+		#xlJumpNum {
+			width: 35px;
+			margin: 0 3px;
+		}
+		input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{
+			-webkit-appearance: none !important;
+		}
+		input[type="number"]{
+			-moz-appearance:textfield;
+		}
+	</style>
+<script type="text/javascript" th:inline="javascript">
+
+
+	$(function () {
+		$("#modal-editLawCaseColorBtn").click(function () {
+
+			var color=$("#editLawCaseColorSelect").val()
+			var lawCaseId=[[${lawCase.id}]]
+
+			$.ajax({
+				url:[[${#request.getContextPath}]]+"/lawCase/markColor",
+				type:"get",
+				data:{
+					"lawCaseId":lawCaseId,
+					"color":color
+				},
+				dataType:"json",
+				success:function (data) {
+					if(data.success){
+						alert("标记颜色成功！")
+						$("#editLawCaseColorModal").modal("hide")
+					}
+				}
+			})
+		})
+		$("#lawcaseColorBtn").click(function () {
+			$("#editLawCaseColorModal").modal("show")
+		})
+		$("#lawcaseNextCallBtn").click(function (){
+			$("#setNextCallTimeModal").modal("show")
+		})
+		$('#nextCallTime').datetimepicker({
+
+			format: 'yyyy-mm-dd',
+
+			weekStart: 1,
+
+			autoclose: true,
+
+			startView: 2,
+
+			minView: 2,
+
+			language:'zh-CN'
+
+		});
+		$(".commonT").click(function (){
+
+			var dom=$(this).find("a").get(0)
+			dom.click();
+
+		})
+		$(".commonList").hover(function () {
+			$(this).parent().css("color","blue")
+			$(this).parent().css("text-decoration","underline")
+			$(this).parent().css("cursor","pointer")
+
+		})
+		//为mailList添加鼠标离开事件
+		$(".commonList").mouseout(function () {
+			$(this).parent().css("color","black")
+			$(this).parent().css("text-decoration","none")
+		})
+		$("#updateState-modal-address").click(function () {
+			state=$("#updateStageSelect").val();
+			if(state===""){
+				alert("请选择状态！")
+				return;
+			}
+			$.ajax({
+				url:[[${#request.getContextPath()}]]+"/lawCase/updateState",
+				type:"get",
+				data:{
+					"lawCaseId":[[${lawCase.id}]],
+					"state":state
+				},
+				success:function (data) {
+					if(data.success){
+						$("#lawcaseStateBtn").text('状态:'+state)
+						$("#updateStateModal").modal("hide")
+					}
+				}
+			})
+		})
+
+		$("#lawcaseStateBtn").click(function () {
+
+			$("#updateStateModal").modal("show")
+		})
+
+
+		//新增联系人并展示
+		$("#saveBtn-modal-contacts").click(function () {
+			var name=$("#create-name").val();
+			var number=$("#create-number").val();
+			var sex=$("#create-sex").val();
+			var	relationshop=$("#create-relationship").val();
+			if(name==="" || number==="" || sex==="" || relationshop===""){
+				alert("所有均为必填项！");
+				return;
+			}
+
+			index=$("#contactsList tr").length+1;
+
+			name=name.trim();
+			number=number.trim();
+			sex=sex.trim();
+			relationship=relationshop.trim();
+			$.ajax({
+
+				url:[[${#request.getContextPath()}]]+"/contacts/add",
+				type:"post",
+				data:{
+					"lawcaseId":[[${lawCase.id}]],
+					"name":name,
+					"number":number,
+					"sex":sex,
+					"relationship":relationship
+				},
+				dataType:"json",
+				success:function (data) {
+					if(data.result){
+						html1='';
+						html1+='<tr className="elsitT" id="contactsTr">';
+						html1+='<td className="lsit" >'+index+'</td>';
+						html1+='<td className="lsit" ">'+name+'</td>';
+						html1+='<td><a className="lsitnumber"  data-Id="'+data.contacts.id+'" data-name="'+name+'" data-number="'+number+'" data-relationship="'+relationship+'" onclick="fouceNote(this)">'+number+'</a></td>'
+						html1+='<td className="lsit" >'+sex+'</td>'
+						html1+='<td className="lsit" >'+relationship+'</td>'
+						html1+='<td className="lsit" >'+data.contacts.state+'</td>';
+						html1+='<td><a className="lsitremark" data-Id="'+data.contacts.id+'" style="color: red" onclick="remarkContacts(this)">标记失效</a></td>'
+						html1+='</tr>'
+
+						tlength=$(".clsitT").length
+						tdom=$(".clsitT")
+						$(tdom[tlength-1]).after(html1)
+						$("#createContactsModal").modal("hide")
+					}
+				}
+			})
+		})
+		//新增地址并展示
+		$("#saveBtn-modal-address").click(function () {
+			var addname=$("#create-addressname").val();
+			var address=$("#create-address").val();
+			if(addname==="" || address===""){
+				alert("所有均为必填项！");
+				return;
+			}
+			index=$("#addressList tr").length+1;
+			addname=addname.trim();
+			address=address.trim();
+			$.ajax({
+
+				url:[[${#request.getContextPath()}]]+"/address/add",
+				type:"post",
+				data:{
+					"lawcaseId":[[${lawCase.id}]],
+					"name":addname,
+					"address":address
+				},
+				dataType:"json",
+				success:function (data) {
+					if(data.result){
+						html2='';
+						html2+='<tr className="alsitT" id="addressTr">';
+						html2+='<td className="addlsit"  style="width: 104px">'+index+'</td>';
+						html2+='<td className="addlsit"  style="width: 217px;">'+addname+'</td>';
+						html2+='<td className="addlsit" >'+address+'</td>';
+						html2+='<td className="addlsit"  style="width: 105px">'+data.address.state+'</td>'
+						html2+='<td style="width: 180px"><a data-id="'+data.address.id+'" style="color: red" \\ onclick="addressRemark(this)">标记失效</a></td>';
+						html2+='</tr>'
+
+
+
+
+						tlength=$(".alsitT").length
+						tdom=$(".alsitT")
+						$(tdom[tlength-1]).after(html2)
+						$("#createAddressModal").modal("hide")
+					}
+				}
+			})
+
+
+		})
+
+
+
+
+
+
+
+
+		$("#saveContactsBtn").click(function () {
+			$("#createContactsModal").modal("show")
+		})
+		$("#saveAddressBtn").click(function () {
+			$("#createAddressModal").modal("show")
+		})
+		//分页初始化
+		var pagesize=5;
+		var noteCount=[[${noteCount}]]
+		var allPageNumber=0
+		if ((noteCount%5)!==0){
+			if(noteCount<=5){
+				allPageNumber=1;
+			}
+			allPageNumber=noteCount/5+1;
+		}else{
+
+			allPageNumber=noteCount/5;
+		}
+
+		let xlPaging =new Paging('page', {
+			nowPage: 1, // 当前页码
+			pageNum: allPageNumber, // 总页码
+			buttonNum: 10, //要展示的页码数量
+			canJump: 0,// 是否能跳转。0=不显示（默认），1=显示
+			showOne: 1,//只有一页时，是否显示。0=不显示,1=显示（默认）
+			callback: function (num) { //回调函数
+				detailNote(pagesize,num)
+				console.log(num);
+
+			}
+		})
+
+		detailNote(5,1);
+
+
+
+
+		$("#saveNoteBtn").click(function () {
+			saveNote()
+		})
+
+		$("#cancelAndSaveBtn").show("2000");
+
+		// $(".lsitremark").click(function () {
+		// 	var thiss=$(this)
+		// 	var id=$(this).data("id");
+		// 	$.ajax({
+		// 		url:[[${#request.getContextPath()}]]+"/contacts/remarkInvalid",
+		// 		type:"get",
+		// 		data:{"id":id},
+		// 		dataType:"json",
+		// 		success:function (data){
+		// 			if(data.result){
+		//
+		// 				$(thiss).parent().prev().html("失效")
+		// 			}else{
+		// 				alert("标记失败！")
+		// 			}
+		//
+		// 		}
+		// 	})
+		// })
+		//当点击联系人，将联系人信息保存到文本域上方的文本框，并让文本域获取光标
+		// $(".lsitnumber").click(function () {
+		//
+		// 	$("#note").focus()
+		//
+		// 	$("#create-note").val($(this).data("name")+'  '+$(this).data("number")+'  '+$(this).data("relationship"))
+		//
+		// 	$("#create-note").data("id",$(this).data("id"))
+		//
+		// })
+
+
+		//为信息展示部分添加蓝色背景，增强辨识度
+		var dom=$("#detailTable").find("td");
+		$(dom).css("background-color","#418ac8FF")
+		$(dom).css("color","white")
+		$(dom).css("text-align","center")
+		$(dom).css("font-size","13px")
+		$(dom).css("padding","12px")
+		$.each(dom,function (index,value) {
+			j=index+1;
+			k=j%2
+			if(k==0){
+				$(value).css("background-color","white")
+				$(value).css("color","black")
+			}
+		})
+
+
+
+
+
+		// $("#remark").focus(function(){
+		// 	if(cancelAndSaveBtnDefault){
+		// 		//设置remarkDiv的高度为130px
+		// 		$("#remarkDiv").css("height","130px");
+		// 		//显示
+		// 		$("#cancelAndSaveBtn").show("2000");
+		// 		cancelAndSaveBtnDefault = false;
+		// 	}
+		// });
+		//
+		// $("#cancelBtn").click(function(){
+		// 	//显示
+		// 	$("#cancelAndSaveBtn").hide();
+		// 	//设置remarkDiv的高度为130px
+		// 	$("#remarkDiv").css("height","90px");
+		// 	cancelAndSaveBtnDefault = true;
+		// });
+		//
+		$(".remarkDiv").mouseover(function(){
+			$(this).children("div").children("div").show();
+		});
+		
+		$(".remarkDiv").mouseout(function(){
+			$(this).children("div").children("div").hide();
+		});
+		
+		$(".myHref").mouseover(function(){
+			$(this).children("span").css("color","red");
+		});
+		
+		$(".myHref").mouseout(function(){
+			$(this).children("span").css("color","#E6E6E6");
+		});
+
+		//页面加载完毕后，展现该市场活动关联的备注信息列表
+		showRemarkList();
+
+		$("#remarkBody").on("mouseover",".remarkDiv",function(){
+			$(this).children("div").children("div").show();
+		})
+		$("#remarkBody").on("mouseout",".remarkDiv",function(){
+			$(this).children("div").children("div").hide();
+		})
+
+
+		//为保存按钮绑定事件，执行备注添加操作
+		$("#saveRemarkBtn").click(function () {
+
+			$.ajax({
+
+				url : "workbench/activity/saveRemark.do",
+				data : {
+
+					"noteContent" : $.trim($("#remark").val()),
+					"activityId" : "${a.id}"
+
+				},
+				type : "post",
+				dataType : "json",
+				success : function (data) {
+
+					/*
+
+						data
+							{"success":true/false,"ar":{备注}}
+
+					 */
+
+					if(data.success){
+
+						//添加成功
+
+						//textarea文本域中的信息清空掉
+						$("#remark").val("");
+
+						//在textarea文本域上方新增一个div
+						var html = "";
+
+						html += '<div id="'+data.ar.id+'" class="remarkDiv" style="height: 60px;">';
+						html += '<img title="zhangsan" src="image/user-thumbnail.png" style="width: 30px; height:30px;">';
+						html += '<div style="position: relative; top: -40px; left: 40px;" >';
+						html += '<h5>'+data.ar.noteContent+'</h5>';
+						html += '<font color="gray">市场活动</font> <font color="gray">-</font> <b>${a.name}</b> <small style="color: gray;"> '+(data.ar.createTime)+' 由'+(data.ar.createBy)+'</small>';
+						html += '<div style="position: relative; left: 500px; top: -30px; height: 30px; width: 100px; display: none;">';
+						html += '<a class="myHref" href="javascript:void(0);"><span class="glyphicon glyphicon-edit" style="font-size: 20px; color: #FF0000;"></span></a>';
+						html += '&nbsp;&nbsp;&nbsp;&nbsp;';
+						html += '<a class="myHref" href="javascript:void(0);" onclick="deleteRemark(\''+data.ar.id+'\')"><span class="glyphicon glyphicon-remove" style="font-size: 20px; color: #FF0000;"></span></a>';
+						html += '</div>';
+						html += '</div>';
+						html += '</div>';
+
+						$("#remarkDiv").before(html);
+
+					}else{
+
+						alert("添加备注失败");
+
+					}
+
+
+				}
+
+			})
+
+		})
+
+
+		//为更新按钮绑定事件
+		$("#updateRemarkBtn").click(function () {
+
+			var id = $("#remarkId").val();
+
+			$.ajax({
+
+				url : "workbench/activity/updateRemark.do",
+				data : {
+
+					"id" : id,
+					"noteContent" : $.trim($("#noteContent").val())
+
+				},
+				type : "post",
+				dataType : "json",
+				success : function (data) {
+
+					/*
+
+						data
+							{"success":true/false,"ar":{备注}}
+
+					 */
+					if(data.success){
+
+						//修改备注成功
+						//更新div中相应的信息，需要更新的内容有 noteContent，editTime，editBy
+						$("#e"+id).html(data.ar.noteContent);
+						$("#s"+id).html(data.ar.editTime+" 由"+data.ar.editBy);
+
+						//更新内容之后，关闭模态窗口
+						$("#editRemarkModal").modal("hide");
+
+
+					}else{
+
+						alert("修改备注失败");
+
+					}
+
+
+				}
+
+			})
+
+		})
+
+	});
+
+	function showRemarkList() {
+
+		$.ajax({
+
+			url : "workbench/activity/getRemarkListByAid.do",
+			data : {
+
+				"activityId" : "${a.id}"
+
+			},
+			type : "get",
+			dataType : "json",
+			success : function (data) {
+
+				/*
+
+					data
+						[{备注1},{2},{3}]
+
+
+				 */
+
+				var html = "";
+
+				$.each(data,function (i,n) {
+
+					/*
+						javascript:void(0);
+							将超链接禁用，只能以触发事件的形式来操作
+					 */
+
+					html += '<div id="'+n.id+'" class="remarkDiv" style="height: 60px;">';
+					html += '<img title="zhangsan" src="image/user-thumbnail.png" style="width: 30px; height:30px;">';
+					html += '<div style="position: relative; top: -40px; left: 40px;" >';
+					html += '<h5 id="e'+n.id+'">'+n.noteContent+'</h5>';
+					html += '<font color="gray">市场活动</font> <font color="gray">-</font> <b>${a.name}</b> <small style="color: gray;" id="s'+n.id+'"> '+(n.editFlag==0?n.createTime:n.editTime)+' 由'+(n.editFlag==0?n.createBy:n.editBy)+'</small>';
+					html += '<div style="position: relative; left: 500px; top: -30px; height: 30px; width: 100px; display: none;">';
+					html += '<a class="myHref" href="javascript:void(0);" onclick="editRemark(\''+n.id+'\')"><span class="glyphicon glyphicon-edit" style="font-size: 20px; color: #FF0000;"></span></a>';
+					html += '&nbsp;&nbsp;&nbsp;&nbsp;';
+					html += '<a class="myHref" href="javascript:void(0);" onclick="deleteRemark(\''+n.id+'\')"><span class="glyphicon glyphicon-remove" style="font-size: 20px; color: #FF0000;"></span></a>';
+					html += '</div>';
+					html += '</div>';
+					html += '</div>';
+
+				})
+
+				$("#remarkDiv").before(html);
+
+			}
+
+		})
+
+	}
+
+
+	function deleteRemark(id) {
+
+		$.ajax({
+
+			url : "workbench/activity/deleteRemark.do",
+			data : {
+
+				"id" : id
+
+			},
+			type : "post",
+			dataType : "json",
+			success : function (data) {
+
+				/*
+
+					data
+						{"success":true/false}
+
+				 */
+
+				if(data.success){
+
+					//删除备注成功
+					//这种做法不行，记录使用的是before方法，每一次删除之后，页面上都会保留原有的数据
+					//showRemarkList();
+
+					//找到需要删除记录的div，将div移除掉
+					$("#"+id).remove();
+
+
+				}else{
+
+					alert("删除备注失败");
+
+				}
+
+
+			}
+
+		})
+
+	}
+
+	function editRemark(id) {
+
+		//alert(id);
+
+		//将模态窗口中，隐藏域中的id进行赋值
+		$("#remarkId").val(id);
+
+		//找到指定的存放备注信息的h5标签
+		var noteContent = $("#e"+id).html();
+
+		//将h5中展现出来的信息，赋予到修改操作模态窗口的文本域中
+		$("#noteContent").val(noteContent);
+
+		//以上信息处理完毕后，将修改备注的模态窗口打开
+		$("#editRemarkModal").modal("show");
+
+	}
+	function showEditLawcase() {
+		$("#editRemarkModal").modal("show");
+	}
+
+	function addressRemark(item){
+		var thiss=$(item)
+		var id=$(item).data("id");
+		$.ajax({
+			url:[[${#request.getContextPath()}]]+"/address/remarkInvalid",
+			type:"get",
+			data:{"addressId":id},
+			dataType:"json",
+			success:function (data){
+				if(data.result){
+
+					$(thiss).parent().prev().html("失效")
+				}else{
+					alert("标记失败！")
+				}
+
+			}
+		})
+	}
+	//添加成功后，将新添加的记录铺到催收记录
+	function saveNote() {
+		if($("#create-note").val()==="联系人"){
+			alert("请选择外呼的联系人！")
+			return;
+		}
+		if($("#note").val()===""){
+			alert("催记不得为空！")
+		}else{
+			var text=$("#note").val()
+			var contactsId=$("#create-note").data("id")
+			var userName=[[${session.user.name}]]
+			var lawcaseId=[[${lawCase.id}]]
+			$.ajax({
+				url:[[${#request.getContextPath()}]]+"/note/add",
+				type:"post",
+				data:{
+					"text":text,
+					"contactsId":contactsId,
+					"name":userName,
+					"lawCaseId":lawcaseId
+
+				},
+				dataType:"json",
+				success:function (data) {
+					var html='';
+					html+='<div style="margin-bottom: 20px" >'
+					html+='<h5>'+data.text+'</h5>'
+					html+='<font color="gray" >致电 '+data.contacts.name+' '+data.contacts.number+'</font> <font color="gray">-</font> <b></b> <small style="color: gray;" > '+data.time+' 由 '+data.userName+'</small>'
+					html+='</div>';
+
+					$("#noteDiv").before(html)
+					$("#note").val("");
+					$("#notCallTime").text("0天")
+					$("#lawcaseNextCallBtn").text("下次跟进:未设置")
+
+				}
+
+			})
+		}
+	}
+
+	function detailNote(pageSize,pageNumber) {
+
+				$.ajax({
+					url:[[${#request.getContextPath()}]]+"/note/getNotePageListByLawCaseId",
+					type:"get",
+					data:{
+						"pageSize":pageSize,
+						"pageNumber":pageNumber,
+						"lawCaseId":[[${lawCase.id}]]
+					},
+					success:function (data){
+						$("noteDiv").html("")
+						html=""
+						$.each(data,function (i,n) {
+							html+='<div  style="margin-bottom: 20px">'
+							html+='<h5>'+n.text+'</h5>'
+							html+='<font color="gray" >致电 '+n.contacts.name+' '+n.contacts.number+'</font> <font color="gray">-</font> <b></b> <small style="color: gray;" > '+n.time+' 由 '+n.userName+'</small>'
+							html+='</div>';
+						})
+						$("#noteDiv").html(html)
+					}
+				})
+	}
+	function fouceNote(obj) {
+		$("#note").focus()
+
+		$("#create-note").val($(obj).data("name")+'  '+$(obj).data("number")+'  '+$(obj).data("relationship"))
+
+		 	$("#create-note").data("id",$(obj).data("id"))
+	}
+
+	function remarkContacts(obj) {
+		var thiss=obj
+		var id=$(thiss).data("id");
+		$.ajax({
+			url:[[${#request.getContextPath()}]]+"/contacts/remarkInvalid",
+			type:"get",
+			data:{"id":id},
+			dataType:"json",
+			success:function (data){
+				if(data.result){
+
+					$(thiss).parent().prev().html("失效")
+				}else{
+					alert("标记失败！")
+				}
+
+			}
+		})
+	}
+
+function setNextCallTime() {
+		$.ajax({
+			url:[[${#request.getContextPath()}]]+"/lawCase/updateNextCallTime",
+			type:"get",
+			data:{
+				"nextCallTime":$("#nextCallTime").val(),
+				"lawCaseId":[[${lawCase.id}]]
+			},
+			success:function (data) {
+				if(data.success){
+					$("#lawcaseNextCallBtn").text("下次跟进:"+$("#nextCallTime").val())
+					$("#setNextCallTimeModal").modal("hide")
+					$("#lawcaseStateBtn").text("状态:跟进")
+				}
+			}
+		})
+
+}
+
+</script>
+
+</head>
+<body th:inline="text">
+<!--为案件设置标记颜色的模态窗口-->
+<div class="modal fade" id="editLawCaseColorModal" role="dialog" style="margin-top: 120px">
+	<div class="modal-dialog" role="document" style="width: 80%;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">
+					<span aria-hidden="true">×</span>
+				</button>
+				<h4 class="modal-title" id="">标记颜色</h4>
+			</div>
+			<div class="modal-body" style="text-align: center">
+				<span id="message"></span>
+				<div class="form-group">
+					<div class="form-group">
+						<label for="create-mphone" class="col-sm-2 control-label">设置颜色</label>
+						<div class="col-sm-10" style="width: 300px;">
+							<select  class="form-control"  id="editLawCaseColorSelect">
+								<option value="red">红色</option>
+
+								<option value="blue">蓝色</option>
+								<option value="black">清除颜色</option>
+
+							</select>
+						</div>
+
+
+					</div>
+				</div>
+
+			</div>
+			<br><br>
+		</div>
+		<div class="modal-footer">
+			<!--
+
+                data-dismiss="modal"
+                    表示关闭模态窗口
+
+            -->
+			<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+			<button type="button" class="btn btn-danger" id="modal-editLawCaseColorBtn" style="background-color: red">标记</button>
+		</div>
+	</div>
+</div>
+</div>
+<!--	创建联系人的模态窗口-->
+<!-- 创建市场活动的模态窗口 -->
+<div class="modal fade" id="createContactsModal" role="dialog" style="margin-top: 120px">
+	<div class="modal-dialog" role="document" style="width: 85%;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">
+					<span aria-hidden="true">×</span>
+				</button>
+				<h4 class="modal-title" id="myModalLabel1">创建联系人</h4>
+			</div>
+			<div class="modal-body">
+
+				<form id="/contacts/add" class="form-horizontal" role="form">
+
+					<div class="form-group">
+						<label for="create-marketActivityOwner" class="col-sm-2 control-label" >姓名<span style="font-size: 15px; color: red;">*</span></label>
+						<div class="col-sm-10" style="width: 300px;">
+							<input type="text" class="form-control" id="create-name">
+						</div>
+
+						<label for="create-marketActivityName" class="col-sm-2 control-label">号码<span style="font-size: 15px; color: red;">*</span></label>
+						<div class="col-sm-10" style="width: 300px;">
+							<input type="text" class="form-control" id="create-number">
+						</div>
+
+						<label for="create-marketActivityName" class="col-sm-2 control-label" style="position: relative;top:20px">性别<span style="font-size: 15px; color: red">*</span></label>
+						<div class="col-sm-10" style="width: 300px;position: relative;top:20px">
+							<input type="text" class="form-control" id="create-sex">
+						</div>
+
+						<label for="create-marketActivityName" class="col-sm-2 control-label" style="position: relative;top:20px">关系<span style="font-size: 15px; color: red;">*</span></label>
+						<div class="col-sm-10" style="width: 300px;position: relative;top:20px">
+							<input type="text" class="form-control" id="create-relationship">
+						</div>
+					</div>
+
+
+
+				</form>
+
+			</div>
+			<div class="modal-footer">
+				<!--
+
+                    data-dismiss="modal"
+                        表示关闭模态窗口
+
+                -->
+				<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+				<button type="button" class="btn btn-primary" id="saveBtn-modal-contacts">保存</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--创建地址模态窗口-->
+<div class="modal fade" id="createAddressModal" role="dialog" style="margin-top: 120px">
+	<div class="modal-dialog" role="document" style="width: 85%;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">
+					<span aria-hidden="true">×</span>
+				</button>
+				<h4 class="modal-title" id="myModalLabel2">创建联系人</h4>
+			</div>
+			<div class="modal-body">
+
+				<form id="/address/add" class="form-horizontal" role="form">
+
+					<div class="form-group">
+						<label for="create-marketActivityOwner" class="col-sm-2 control-label" >名称<span style="font-size: 15px; color: red;">*</span></label>
+						<div class="col-sm-10" style="width: 300px;">
+							<input type="text" class="form-control" id="create-addressname">
+						</div>
+
+						<label for="create-marketActivityName" class="col-sm-2 control-label">地址<span style="font-size: 15px; color: red;">*</span></label>
+						<div class="col-sm-10" style="width: 300px;">
+							<input type="text" class="form-control" id="create-address">
+						</div>
+
+					</div>
+
+
+
+				</form>
+
+			</div>
+			<div class="modal-footer">
+				<!--
+
+                    data-dismiss="modal"
+                        表示关闭模态窗口
+
+                -->
+				<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+				<button type="button" class="btn btn-primary" id="saveBtn-modal-address">保存</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 标记案件的模态窗口-->
+<div class="modal fade" id="updateStateModal" role="dialog" style="margin-top: 120px">
+	<div class="modal-dialog" role="document" style="width: 85%;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">
+					<span aria-hidden="true">×</span>
+				</button>
+				<h4 class="modal-title" id="myModalLabel3">修改案件状态</h4>
+			</div>
+			<div class="modal-body">
+
+				<form id="/lawCase/updateState" class="form-horizontal" role="form">
+
+					<div class="form-group">
+						<label for="create-marketActivityOwner" class="col-sm-2 control-label" >状态:<span style="font-size: 15px; color: red;">*</span></label>
+						<div class="col-sm-10" style="width: 300px;margin: auto">
+							<select id="updateStageSelect" class="form-control" >
+								<option value =""></option>
+								<option value ="跟进">跟进</option>
+								<option value ="查找">查找</option>
+								<option value="谈判">谈判</option>
+								<option value="中人">中人</option>
+								<option value="约定">约定</option>
+								<option value="放弃">放弃</option>
+							</select>
+
+						</div>
+
+
+
+
+					</div>
+
+
+
+				</form>
+
+			</div>
+			<div class="modal-footer">
+				<!--
+
+                    data-dismiss="modal"
+                        表示关闭模态窗口
+
+                -->
+				<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+				<button type="button" class="btn btn-primary" id="updateState-modal-address">保存</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+<!--设置下次跟进时间的模态窗口-->
+<div class="modal fade" id="setNextCallTimeModal" role="dialog" style="margin-top: 120px">
+	<div class="modal-dialog" role="document" style="width: 85%;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">
+					<span aria-hidden="true">×</span>
+				</button>
+				<h4 class="modal-title" id="myModalLabel4">设置下次跟进时间</h4>
+			</div>
+			<div class="modal-body">
+
+				<form  class="form-horizontal" role="form">
+
+					<div class="form-group">
+						<label for="create-marketActivityOwner" class="col-sm-2 control-label" >时间<span style="font-size: 15px; color: red;">*</span></label>
+						<div class="col-sm-10" style="width: 300px;margin: auto">
+							<input id="nextCallTime" type="text" name="nextCallTime"  class="form-control" >
+
+						</div>
+
+
+
+
+					</div>
+
+
+
+				</form>
+
+			</div>
+			<div class="modal-footer">
+				<!--
+
+                    data-dismiss="modal"
+                        表示关闭模态窗口
+
+                -->
+				<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+				<button type="button" class="btn btn-primary" id="updateState-modal-address" onclick="setNextCallTime()">保存</button>
+			</div>
+		</div>
+	</div>
+</div>
+	<!-- 返回按钮 -->
+	<div style="position: relative; top: 35px; left: 10px;">
+		<a href="javascript:void(0);" onclick="window.history.back();"><span class="glyphicon glyphicon-arrow-left" style="font-size: 20px; color: #DDDDDD"></span></a>
+	</div>
+	
+	<!-- 大标题 -->
+	<div style="position: relative; left: 40px; top: -40px; bottom: 80px">
+		<div style="margin-top: 40px;margin-left: 20px;margin-bottom: 15px;display: inline-block">
+			<h4 style="display: inline-block">委案编号:[[${lawCase.lawcaseId}]]&nbsp;&nbsp;&nbsp;<span style="font-size: 13.5px;" th:text="'催收员:'+${lawCaseUser.name}" >123123</span></h4>
+
+		</div>
+
+		<br>
+		<br>
+		<br>
+
+	</div>
+<a  id="lawcaseColorBtn"   style="position: absolute;top:63px;left: 760px" >标记颜色</a>
+<a  id="lawcaseNextCallBtn"  style="position: absolute;top:63px;left: 900px"  th:text="'下次跟进:'+${lawCase.nextCallTime}">标记状态</a>
+<a  id="lawcaseStateBtn"  style="position: absolute;top:63px;left: 1080px" th:text="'状态:'+${lawCase.state}">标记状态</a>
+	<!-- 详细信息 -->
+<!--	<div style="position: relative; top: -70px;">-->
+<!--		<div style="position: relative; left: 40px; height: 30px;">-->
+<!--			<div style="width: 100px; color: gray;">所有者</div>-->
+<!--			<div style="width: 100px;position: relative; left: 50px; top: -20px;" ><b th:text="${lawCaseUser.name}">${a.owner}</b></div>-->
+<!--			<div style="width: 100px;position: relative; left: 450px; top: -40px; color: gray;">名称</div>-->
+<!--			<div style="width: 100px;position: relative; left: 650px; top: -60px;"><b>${a.name}</b></div>-->
+<!--			<div style="height: 1px; width: 100px; background: #D5D5D5; position: relative; top: -60px;"></div>-->
+<!--			<div style="height: 1px; width: 100px; background: #D5D5D5; position: relative; top: -60px; left: 450px;"></div>-->
+<!--		</div>-->
+
+
+<!--		<div style="position: relative; left: 40px; height: 30px; top: 10px;">-->
+<!--			<div style="width: 300px; color: gray;">开始日期</div>-->
+<!--			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${a.startDate}</b></div>-->
+<!--			<div style="width: 300px;position: relative; left: 450px; top: -40px; color: gray;">结束日期</div>-->
+<!--			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${a.endDate}</b></div>-->
+<!--			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px;"></div>-->
+<!--			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px; left: 450px;"></div>-->
+<!--		</div>-->
+<!--		<div style="position: relative; left: 40px; height: 30px; top: 20px;">-->
+<!--			<div style="width: 300px; color: gray;">成本</div>-->
+<!--			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${a.cost}</b></div>-->
+<!--			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -20px;"></div>-->
+<!--		</div>-->
+<!--		<div style="position: relative; left: 40px; height: 30px; top: 30px;">-->
+<!--			<div style="width: 300px; color: gray;">创建者</div>-->
+<!--			<div style="width: 500px;position: relative; left: 200px; top: -20px;"><b>${a.createBy}&nbsp;&nbsp;</b><small style="font-size: 10px; color: gray;">${a.createTime}</small></div>-->
+<!--			<div style="height: 1px; width: 550px; background: #D5D5D5; position: relative; top: -20px;"></div>-->
+<!--		</div>-->
+<!--		<div style="position: relative; left: 40px; height: 30px; top: 40px;">-->
+<!--			<div style="width: 300px; color: gray;">修改者</div>-->
+<!--			<div style="width: 500px;position: relative; left: 200px; top: -20px;"><b>${a.editBy}&nbsp;&nbsp;</b><small style="font-size: 10px; color: gray;">${a.editTime}</small></div>-->
+<!--			<div style="height: 1px; width: 550px; background: #D5D5D5; position: relative; top: -20px;"></div>-->
+<!--		</div>-->
+<!--		<div style="position: relative; left: 40px; height: 30px; top: 50px;">-->
+<!--			<div style="width: 300px; color: gray;">描述</div>-->
+<!--			<div style="width: 630px;position: relative; left: 200px; top: -20px;">-->
+<!--				<b>-->
+<!--					${a.description}-->
+<!--				</b>-->
+<!--			</div>-->
+<!--			<div style="height: 1px; width: 850px; background: #D5D5D5; position: relative; top: -20px;"></div>-->
+<!--		</div>-->
+<!--	</div>-->
+	<div class="container" style="margin-top: -70px">
+		<div class="row clearfix">
+			<div class="col-md-12 column">
+				<table class="table table-bordered" style="width: auto">
+
+					<tbody id="detailTable">
+					<tr>
+						<td style="width: 100px" >
+							债务人:
+						</td>
+						<td th:text="${lawCase.lawcaseOwnerName}">
+							TB - Monthly
+						</td>
+						<td>
+							逾期账户:
+						</td>
+						<td th:text="${lawCase.cardId}">
+							Default
+						</td>
+
+						<td style="width: 100px">
+							委案银行:
+						</td>
+						<td th:text="${lawCase.cardBank}">
+							TB - Monthly
+						</td>
+						<td>
+							欠款金额:
+						</td>
+						<td th:text="${lawCase.cardMoney}">
+							Default
+						</td>
+						<td style="width: 100px">
+							最大减免额:
+						</td>
+						<td th:text="${lawCase.cardMaxReduction}" >
+							最大减免额:
+						</td>
+						<td style="width: 100px">
+							案件类型:
+						</td>
+						<td th:text="${lawCase.lawcaseLevel}" >
+
+						</td>
+					</tr>
+					<tr class="table table-bordered">
+						<td>
+							年龄:
+						</td>
+						<td th:text="${lawCase.lawcaseOwnerAge}">
+							TB - Monthly
+						</td>
+						<td>
+							身份证号:
+						</td>
+						<td th:text="${lawCase.lawcaseOwnerId}">
+							Approv
+						</td>
+						<td>
+							性别:
+						</td>
+						<td th:text="${lawCase.lawcaseOwnerSex}">
+							TB - Monthly
+						</td>
+<!--						<td>-->
+<!--							家庭住址:-->
+<!--						</td>-->
+<!--						<td th:text="${lawCase.lawcaseOwnerAddress}" colspan="5">-->
+<!--							Approv-->
+<!--						</td>-->
+						<td>
+							工作单位:
+						</td>
+						<td th:text="${lawCase.lawcaseOwnerWork}">
+							TB - Monthly
+						</td >
+						<td>
+							担任职务:
+						</td>
+						<td th:text="${lawCase.lawcaseOwnerJob}">
+							010000000000000000
+						</td>
+						<td>
+							账单日:
+						</td>
+						<td th:text="${lawCase.cardListDay}">
+							Declined
+						</td>
+					</tr>
+
+
+					<tr class="error">
+						<td>
+							逾期时间:
+						</td>
+						<td th:text="${lawCase.getCardOverdueTime()}+'天'">
+							TB - Monthly
+						</td >
+						<td>
+							委案编号:
+						</td>
+						<td th:text="${lawCase.lawcaseId}">
+							010000000000000000
+						</td>
+						<td>
+							利息:
+						</td>
+						<td th:text="${lawCase.cardInterest}">
+							TB - Monthly
+						</td>
+						<td>
+							滞纳金:
+						</td>
+						<td th:text="${lawCase.cardLatefee}">
+							Declined
+						</td>
+						<td >
+							未跟进时长:
+						</td>
+						<td id="notCallTime" th:text="${lawCase.lastCallTime}+'(天)'">
+							TB - Monthly
+						</td>
+						<td>
+							案件状态:
+						</td>
+						<td th:text="${lawCase.state}">
+							Declined
+						</td>
+					</tr>
+
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<h4 style="margin-left: 62px;display: inline-block;">联系人</h4> <!--		<button type="button" class="btn btn-primary" id="saveContactsBtn" style="position: absolute;right: 120px;top: 230px;">新增</button>-->
+<a  id="saveContactsBtn" style="margin-left: 980px" >新增</a>
+	<table class="table table-condensed table-bordered" style="text-align: center;width: 1076px;font-size: 13px;margin-left: 53px">
+		<thead>
+		<tr >
+			<th style="text-align: center">
+				条目
+			</th >
+			<th style="text-align: center">
+				姓名
+			</th>
+			<th style="text-align: center">
+				号码
+			</th>
+			<th style="text-align: center">
+				性别
+			</th>
+			<th style="text-align: center">
+				关系
+			</th>
+			<th style="text-align: center">
+				状态
+			</th>
+			<th style="text-align: center">
+				操作
+			</th>
+		</tr>
+		</thead>
+		<tbody th:each="contacts:${contactsList}" id="contactsList">
+		<tr class="clsitT" id="contactsTr">
+			<td class="lsit" th:text="${contactsStat.count}" >
+				条目
+			</td>
+			<td class="lsit" th:text="${contacts.name}" >
+				崔xx
+			</td >
+			<td   >
+				<a  class="lsitnumber" th:text="${contacts.number}" th:data-Id="${contacts.id}" th:data-name="${contacts.name}" th:data-number="${contacts.number}"  th:data-relationship="${contacts.relationship}" onclick="fouceNote(this)">13915125483</a>
+			</td >
+			<td class="lsit" th:text="${contacts.sex}" >
+				男
+			</td>
+			<td class="lsit" th:text="${contacts.relationship}" >
+				父亲
+			</td>
+			<td class="lsit" th:text="${contacts.state}" >
+				有效
+			</td>
+			<td  >
+				<a class="lsitremark"  th:data-Id="${contacts.id}" style="color: red" onclick="remarkContacts(this)" \>标记失效</a>
+			</td>
+<!--			<td class="lsit" style="display: none"  >-->
+<!--				<a  th:href="@{/mail/detail(id=${contacts.id})}" \></a>-->
+<!--			</td>-->
+
+
+		</tr>
+		</tbody>
+
+	</table>
+
+<h4 style="margin-left: 62px;display: inline-block;" >地址</h4><!--	<button type="button" class="btn btn-primary" id="saveAddressBtn" style="position: absolute;right: 120px;top: 397px;">新增</button>-->
+<a  id="saveAddressBtn" style="margin-left: 998px" >新增</a>
+	<table class="table table-condensed table-bordered" style="text-align: center;width: 1076px;font-size: 13px;margin-left: 53px">
+		<thead>
+		<tr >
+			<th style="text-align: center">
+				条目
+			</th >
+			<th style="text-align: center">
+				名称
+			</th>
+			<th style="text-align: center">
+				地址
+			</th>
+			<th style="text-align: center">
+				状态
+			</th>
+			<th style="text-align: center">
+				操作
+			</th>
+
+		</tr>
+		</thead>
+		<tbody th:each="address:${addressList}" id="addressList">
+		<tr class="alsitT" id="addressTr" >
+			<td class="addlsit" th:text="${addressStat.count}"style="width: 104px" >
+				条目
+			</td>
+			<td class="addlsit" th:text="${address.name}" style="width: 217px;">
+				坤泽股份有限公司
+			</td >
+			<td class="addlsit"  th:text="${address.address}">
+				郑州市金水区xx大厦
+			</td >
+			<td class="addlsit" th:text="${address.state}" style="width: 105px">
+				有效
+			</td>
+
+
+			<td  style="width: 180px">
+				<a  th:data-id="${address.id}" style="color: red" \ onclick="addressRemark(this)">标记失效</a>
+			</td>
+<!--			<td class="lsit" style="display: none"  >-->
+<!--				<a  th:href="@{/mail/detail(id=${address.id})}" \></a>-->
+<!--			</td>-->
+
+
+		</tr>
+		</tbody>
+
+	</table>
+
+<!--同催案件-->
+<h4 style="margin-left: 62px;display: inline-block;" >同催案件</h4>
+
+
+
+<table  class="table table-condensed table-bordered" style="text-align: center;width: 1076px;font-size: 13px;margin-left: 53px;margin-bottom: 70px">
+	<thead>
+	<tr style="text-align: center">
+		<th style="text-align: center">
+			条目
+		</th>
+		<th style="text-align: center">
+			债务人
+		</th>
+		<th style="text-align: center">
+			逾期账号
+		</th>
+		<th style="text-align: center">
+			欠款金额
+		</th>
+		<th style="text-align: center">
+			最大减免额度
+		</th>
+		<th style="text-align: center">
+			委案银行
+		</th>
+		<th style="text-align: center">
+			案件状态
+		</th>
+	</tr>
+	</thead>
+	<tbody th:each="lawcase:${commonLawcase}">
+	<tr  class="commonT" th:data-id="${lawcase.id}">
+		<td class="commonList" th:text="${lawcaseStat.count}">
+			无
+		</td>
+		<td class="commonList" th:text="${lawcase.getLawcaseOwnerName()}">
+			无
+		</td>
+		<td class="commonList" th:text="${lawcase.getCardId()}">
+			无
+		</td>
+		<td class="commonList" th:text="${lawcase.getCardMoney()}">
+			无
+		</td>
+		<td class="commonList" th:text="${lawcase.getCardMaxReduction()}">
+			无
+		</td>
+		<td class="commonList" th:text="${lawcase.getCardBank()}">
+			无
+		</td>
+		<td class="commonList" th:text="${lawcase.getState()}">
+			无
+		</td>
+		<td class="commonList" style="display: none" >
+			<a th:href="@{/lawCase/detail(id=${lawcase.getId()})}" \></a>
+		</td>
+
+	</tr>
+	</tbody>
+</table>
+
+<!--还款记录-->
+<h4 style="margin-left: 62px;display: inline-block;" >还款记录</h4>
+
+
+
+<table  class="table table-condensed table-bordered" style="text-align: center;width: 1076px;font-size: 13px;margin-left: 53px;margin-bottom: 70px">
+	<thead>
+	<tr style="text-align: center">
+		<th style="text-align: center">
+			条目
+		</th>
+		<th style="text-align: center">
+			还款金额
+		</th>
+		<th style="text-align: center">
+			还款卡号
+		</th>
+		<th style="text-align: center">
+			还款日期
+		</th>
+
+	</tr>
+	</thead>
+	<tbody th:each="repayment:${repaymentList}">
+	<tr  class="commonT" th:data-id="${repayment.id}">
+		<td class="commonList" th:text="${repaymentStat.count}">
+			无
+		</td>
+		<td class="commonList" th:text="${repayment.money}">
+			无
+		</td>
+		<td class="commonList" th:text="${repayment.cardId}">
+			无
+		</td>
+		<td class="commonList" th:text="${repayment.time}">
+			无
+		</td>
+
+	</tr>
+	</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+	<!-- 备注 -->
+	<div id="remarkBody" style="position: relative; top: -17px; left: 62px; bottom: 150px">
+		<div class="page-header">
+			<h4>催收记录</h4>
+		</div>
+
+		<!-- 备注1 -->
+		<div class="remarkDiv" id="noteDiv" style="width: 500px;" >
+
+<!--			<div style="position: relative; top: -40px; left: 40px;width: 650px" >-->
+<!--				<h5 th:text="${note.text}"></h5>-->
+<!--				<font color="gray" th:text="|致电 ${note.contacts.name} ${note.contacts.number}|">市场活动</font> <font color="gray">-</font> <b></b> <small style="color: gray;" th:text="${note.time}+' 由 '+${note.userName}"> 2017-01-22 10:10:10 由zhangsan</small>-->
+<!--			</div>-->
+
+		</div>
+		<div id="page" ></div>
+		
+<br>
+
+		<div id="remarkDiv" style="width: 870px; height: 90px;">
+
+			<div class="col-sm-10" style="width: 300px;">
+				<input type="text"  class="form-control" id="create-note" readonly="readonly" style="background-color: white;text-align: center" value="联系人">
+
+			</div>
+				<br><br>
+			<form role="form" style="position: relative;top: 10px; left: 0px;">
+				<textarea id="note" class="form-control" style="width: 850px; resize : none;" rows="2"  placeholder="添加备注..."></textarea>
+				<p id="cancelAndSaveBtn" style="position: relative;left: 737px; top: 10px; display: none;">
+					<button id="cancelBtn" type="button" class="btn btn-default">取消</button>
+					<button type="button" class="btn btn-primary" id="saveNoteBtn">保存</button>
+				</p>
+			</form>
+		</div>
+	</div>
+	<div style="height: 200px;"></div>
+
+
+
+</body>
+</html>

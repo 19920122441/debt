@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhichangan.debt.user.mapper.UserMapper">
+  <resultMap id="BaseResultMap" type="com.zhichangan.debt.user.entity.User">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="CHAR" property="name" />
+    <result column="dept" jdbcType="CHAR" property="dept" />
+    <result column="root" jdbcType="CHAR" property="root" />
+    <result column="job" jdbcType="CHAR" property="job" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="job_number" jdbcType="CHAR" property="jobNumber" />
+    <result column="phone" jdbcType="CHAR" property="phone" />
+    <result column="creataTime" jdbcType="CHAR" property="creatatime" />
+    <result column="sex" jdbcType="CHAR" property="sex" />
+    <result column="age" jdbcType="INTEGER" property="age" />
+    <result column="cardId" jdbcType="CHAR" property="cardid" />
+    <result column="com1" jdbcType="INTEGER" property="com1" />
+    <result column="com2" jdbcType="INTEGER" property="com2" />
+    <result column="com3" jdbcType="INTEGER" property="com3" />
+    <result column="com4" jdbcType="INTEGER" property="com4" />
+    <result column="com5" jdbcType="INTEGER" property="com5" />
+    <result column="ach1" jdbcType="INTEGER" property="ach1" />
+    <result column="ach2" jdbcType="INTEGER" property="ach2" />
+    <result column="ach3" jdbcType="INTEGER" property="ach3" />
+    <result column="ach4" jdbcType="INTEGER" property="ach4" />
+    <result column="ach5" jdbcType="INTEGER" property="ach5" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, name, dept, root, job, user_name, password, job_number, phone, creataTime, sex, 
+    age, cardId, com1, com2, com3, com4, com5, ach1, ach2, ach3, ach4, ach5
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tbl_user
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from tbl_user
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.zhichangan.debt.user.entity.User">
+    insert into tbl_user (id, name, dept, root, 
+      job, user_name, password, 
+      job_number, phone, creataTime, 
+      sex, age, cardId)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=CHAR}, #{dept,jdbcType=CHAR}, #{root,jdbcType=CHAR}, 
+      #{job,jdbcType=CHAR}, #{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{jobNumber,jdbcType=CHAR}, #{phone,jdbcType=CHAR}, #{creatatime,jdbcType=CHAR}, 
+      #{sex,jdbcType=CHAR}, #{age,jdbcType=INTEGER}, #{cardid,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.zhichangan.debt.user.entity.User">
+    insert into tbl_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="dept != null">
+        dept,
+      </if>
+      <if test="root != null">
+        root,
+      </if>
+      <if test="job != null">
+        job,
+      </if>
+      <if test="userName != null">
+        user_name,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="jobNumber != null">
+        job_number,
+      </if>
+      <if test="phone != null">
+        phone,
+      </if>
+      <if test="creatatime != null">
+        creataTime,
+      </if>
+      <if test="sex != null">
+        sex,
+      </if>
+      <if test="age != null">
+        age,
+      </if>
+      <if test="cardid != null">
+        cardId,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=CHAR},
+      </if>
+      <if test="dept != null">
+        #{dept,jdbcType=CHAR},
+      </if>
+      <if test="root != null">
+        #{root,jdbcType=CHAR},
+      </if>
+      <if test="job != null">
+        #{job,jdbcType=CHAR},
+      </if>
+      <if test="userName != null">
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="jobNumber != null">
+        #{jobNumber,jdbcType=CHAR},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=CHAR},
+      </if>
+      <if test="creatatime != null">
+        #{creatatime,jdbcType=CHAR},
+      </if>
+      <if test="sex != null">
+        #{sex,jdbcType=CHAR},
+      </if>
+      <if test="age != null">
+        #{age,jdbcType=INTEGER},
+      </if>
+      <if test="cardid != null">
+        #{cardid,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zhichangan.debt.user.entity.User">
+    update tbl_user
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=CHAR},
+      </if>
+      <if test="dept != null">
+        dept = #{dept,jdbcType=CHAR},
+      </if>
+      <if test="root != null">
+        root = #{root,jdbcType=CHAR},
+      </if>
+      <if test="job != null">
+        job = #{job,jdbcType=CHAR},
+      </if>
+      <if test="userName != null">
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="jobNumber != null">
+        job_number = #{jobNumber,jdbcType=CHAR},
+      </if>
+      <if test="phone != null">
+        phone = #{phone,jdbcType=CHAR},
+      </if>
+      <if test="creatatime != null">
+        creataTime = #{creatatime,jdbcType=CHAR},
+      </if>
+      <if test="sex != null">
+        sex = #{sex,jdbcType=CHAR},
+      </if>
+      <if test="age != null">
+        age = #{age,jdbcType=INTEGER},
+      </if>
+      <if test="cardid != null">
+        cardId = #{cardid,jdbcType=CHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zhichangan.debt.user.entity.User">
+    update tbl_user
+    set name = #{name,jdbcType=CHAR},
+      dept = #{dept,jdbcType=CHAR},
+      root = #{root,jdbcType=CHAR},
+      job = #{job,jdbcType=CHAR},
+      user_name = #{userName,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      job_number = #{jobNumber,jdbcType=CHAR},
+      phone = #{phone,jdbcType=CHAR},
+      creataTime = #{creatatime,jdbcType=CHAR},
+      sex = #{sex,jdbcType=CHAR},
+      age = #{age,jdbcType=INTEGER},
+      cardId = #{cardid,jdbcType=CHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <select id="login" resultMap="BaseResultMap">
+    select
+      *
+    from
+      tbl_user
+    where
+      user_name=#{userName}
+      and
+      password=#{password}
+  </select>
+  <select id="queryUserByDeptId" resultMap="BaseResultMap">
+    select *from tbl_user where dept=#{deptId}
+  </select>
+  <select id="queryAllUserIdAndNameNotPublicUser" resultMap="BaseResultMap">
+    select id,name from tbl_user where id!='cc2380d603454615ba7f036d40584522'
+  </select>
+  <select id="queryUserByDept" resultMap="BaseResultMap">
+    select u.id,u.name from tbl_user u join tbl_dept d on u.dept=d.id where d.name=#{deptName}
+  </select>
+  <select id="pageQuery" resultMap="BaseResultMap">
+    select *from tbl_user limit #{missNumber},#{pageSize}
+  </select>
+  <select id="query" resultMap="BaseResultMap">
+    select *from tbl_user
+    <where>
+      <if test="name != null and name!=''">
+        and name=#{name}
+      </if>
+      <if test="dept !=null and dept!=''">
+        and dept=#{dept}
+      </if>
+      <if test="phone !=null and phone != ''">
+        and phone=#{phone}
+      </if>
+      <if test="jobNumber !=null and jobNumber!=''">
+        and job_number=#{jobNumber}
+      </if>
+    </where>
+  </select>
+  <select id="queryAllUser" resultMap="BaseResultMap">
+    select *from tbl_user
+  </select>
+  <select id="queryUserByJobNumber" resultMap="BaseResultMap">
+    select *from tbl_user where job_number=#{jobNumber}
+  </select>
+</mapper>

@@ -1,0 +1,547 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link th:href="@{/jquery/bootstrap_3.3.0/css/bootstrap.min.css}" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" th:src="@{/jquery/jquery-1.11.1-min.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery/bootstrap_3.3.0/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/xlPaging.js}"></script>
+
+    <link th:href="@{/jquery/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css}" type="text/css" rel="stylesheet" />
+
+
+
+    <script type="text/javascript" th:src="@{/jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js}"></script>
+    <style>
+
+        #page {
+            margin: 20px auto;
+            color: #666;
+            display: block;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        #page li {
+            display: inline-block;
+            min-width: 50px;
+            height: 30px;
+            cursor: pointer;
+            color: #666;
+            font-size: 13px;
+            line-height: 28px;
+            background-color: #f9f9f9;
+            border: 1px solid #dce0e0;
+            text-align: center;
+            margin: 0 4px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            border-radius: 2px;
+            position: relative;
+            left: -430px;
+            bottom: -10px;
+        }
+
+        .xl-nextPage,
+        .xl-prevPage {
+            width: 60px;
+            color: #418ac8FF;
+            height: 28px;
+        }
+
+        #page li.xl-disabled {
+            opacity: .5;
+            cursor: no-drop;
+        }
+
+        #page li.xl-disabled:hover{
+            background-color: #f9f9f9 !important;
+            border: 1px solid #dce0e0 !important;
+            color: #666 !important;
+        }
+
+        #page li.xl-active {
+            background-color: #418ac8FF;
+            border-color: #418ac8FF;
+            color: #FFF
+        }
+
+        #page li:hover{
+            background-color: #418ac8FF !important;
+            border-color: #418ac8FF;
+            color: #FFF
+        }
+
+        #page li.xl-jumpText {
+            background-color: rgba(0,0,0,0);
+            border-color: rgba(0,0,0,0);
+            opacity: 1;
+        }
+
+        #page li.xl-jumpText:hover{
+            background-color: rgba(0,0,0,0) !important;
+            border-color: rgba(0,0,0,0) !important;
+        }
+
+        #page li.xl-jumpButton{
+            padding: 0 5px;
+        }
+
+        #xlJumpNum {
+            width: 35px;
+            margin: 0 3px;
+        }
+        input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{
+            -webkit-appearance: none !important;
+        }
+        input[type="number"]{
+            -moz-appearance:textfield;
+        }
+    </style>
+</head>
+<script type="text/javascript" th:inline="javascript">
+
+    $(function () {
+
+
+
+
+
+
+
+
+
+
+
+
+
+        $("#selectAll").click(function () {
+            var checked=$("#selectAll").prop("checked")
+            if(checked){
+                $(".lsit input").prop("checked",true)
+            }else {
+                $(".lsit input").prop("checked",false)
+            }
+
+        })
+
+        //分页初始化
+        var pagesize=10;
+        var noteCount=[[${lawcaseCount}]]
+        var allPageNumber=0
+        if ((noteCount%pagesize)!==0){
+            allPageNumber=noteCount/pagesize+1;
+        }else{
+
+            allPageNumber=noteCount/pagesize;
+        }
+
+        let xlPaging =new Paging('page', {
+            nowPage: 1, // 当前页码
+            pageNum: allPageNumber, // 总页码
+            buttonNum: 10, //要展示的页码数量
+            canJump: 0,// 是否能跳转。0=不显示（默认），1=显示
+            showOne: 1,//只有一页时，是否显示。0=不显示,1=显示（默认）
+            callback: function (num) { //回调函数
+                pageLawcase(pagesize,num)
+                console.log(num);
+
+            }
+        })
+
+        pageLawcase(pagesize,1);
+
+        $("#tb").on("mouseenter",".lsitT",function () {
+
+            $(this).css("color","blue")
+            $(this).css("text-decoration","underline")
+            $(this).css("cursor","pointer")
+
+        })
+        //为mailList添加鼠标离开事件
+        $("#tb").on("mouseleave",".lsitT",function () {
+            var startColor=$(this).data("color")
+            if(startColor==null){
+                $(this).css("color","black")
+                $(this).css("text-decoration","none")
+                return;
+            }
+            $(this).css("color",startColor)
+            $(this).css("text-decoration","none")
+        })
+
+        $("#tb").on("click","td",function (){
+            if($(this).index()===0){
+                return;
+            }
+            var dom=$(this).parent().find("a").get(0)
+            dom.click();
+
+        })
+
+
+    })
+
+
+    //当取消案件前方的选择框时，如果全选被勾选，就将全选抹掉，如果全都被选中，就将全选勾上。
+    function selectLawcase(obj) {
+        var dom=$(".lsit input")
+        var flag=true;
+
+
+        for(i=0;i<dom.length;i++){
+            var checked=$(dom[i]).prop("checked")
+            if(checked===false){
+                flag=false;
+            }
+        }
+
+        $("#selectAll").prop("checked",flag)
+
+
+
+    }
+    //分页查询案件
+    function pageLawcase(pagesize,pagenumber){
+        html=''
+        $.ajax({
+            url:[[${#request.getContextPath}]]+"/lawCase/pageByOwner",
+            type:"get",
+            data:{
+                "pageSize":pagesize,
+                "pageNumber":pagenumber
+            },
+            success:function (data) {
+                $.each(data,function (i,n) {
+                    path=[[${#request.getContextPath}]]+"/lawCase/detail"
+                    lawcaseindex=i+1;
+                    html+='<tr  class="lsitT" style="color: '+n.color+';"  data-id="'+n.id+'" data-color="'+n.color+'">'
+                    html+='<td class="lsit"><input name="checkbox" data-lawcaseId='+n.id+' type="checkbox" value="'+n.id+'"  onclick="selectLawcase(this)"/></td>'
+                    html+='<td class="lsit">'+lawcaseindex+'</td>'
+                    html+='<td class="lsit" >'+n.lawcaseOwnerName+'</td>';
+                    html+='<td class="lsit" >'+n.cardId+'</td>';
+                    html+='<td class="lsit" >'+n.cardMoney+'</td>'
+                    html+='<td class="lsit" >'+n.cardMaxReduction+'</td>'
+                    html+='<td class="lsit" >'+n.cardBank+'</td>'
+                    html+='<td class="lsit" >'+n.state+'</td>'
+                    html+='<td style="display: none" class="lsit"><a href="'+path+'?id='+n.id+'" >123</a></td>';
+                    // html+='<a style="display: none" id="aa" th:href="@{/lawCase/detail(id='+n.id+')}" >123</a>';
+                    html+='</tr>'
+                    $("#tb").html(html)
+
+
+
+
+
+
+
+
+
+
+
+
+                })
+            }
+        })
+    }
+
+
+
+    $(".time").datetimepicker({
+        minView: "month",
+        language:  'zh-CN',
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        todayBtn: true,
+        pickerPosition: "top-left"
+    });
+
+
+
+
+
+    function queryLawcase() {
+        var lawcaseOwnerName=$("#lawcaseOwnerName").val()
+        var cardBank=$("#cardBank").val()
+        var cardId=$("#cardId").val()
+        var state=$("#state").val()
+        var minMoney=$("#minMoney").val()
+        var maxMoney=$("#maxMoney").val()
+        var notCallTime=$("#notCallTime").val()
+        if(lawcaseOwnerName==='' && cardBank==='' && cardId==='' && state==='' &&minMoney==='' && maxMoney==='' && notCallTime===''){
+            pageLawcase(10,1)
+            $("#count").html("共"+[[${lawcaseCount}]]+"条案件")
+            return
+        }
+
+        html='';
+        $.ajax({
+            url:[[${#request.getContextPath}]]+"/lawCase/query",
+            type:"get",
+            data:{
+                "lawcaseOwnerName":lawcaseOwnerName,
+                "cardBank":cardBank,
+                "cardId":cardId,
+                "state":state,
+                "minMoney":minMoney,
+                "maxMoney":maxMoney,
+                "notCallTime":notCallTime
+            },
+            dataType:"json",
+            success:function (data) {
+
+                $("#tb").html(html)
+                $("#count").html("共"+data.count+"条案件")
+                $.each(data.lawCaseList,function (i,n) {
+                    path=[[${#request.getContextPath}]]+"/lawCase/detail"
+                    lawcaseindex=i+1;
+                    html+='<tr  class="lsitT" style="color: '+n.color+';"  data-id="'+n.id+'" data-color="'+n.color+'">'
+                    html+='<td class="lsit"><input name="checkbox" data-lawcaseId='+n.id+' type="checkbox" value="'+n.id+'"  onclick="selectLawcase(this)"/></td>'
+                    html+='<td class="lsit">'+lawcaseindex+'</td>'
+                    html+='<td class="lsit" >'+n.lawcaseOwnerName+'</td>';
+                    html+='<td class="lsit" >'+n.cardId+'</td>';
+                    html+='<td class="lsit" >'+n.cardMoney+'</td>'
+                    html+='<td class="lsit" >'+n.cardMaxReduction+'</td>'
+                    html+='<td class="lsit" >'+n.cardBank+'</td>'
+                    html+='<td class="lsit" >'+n.state+'</td>'
+                    html+='<td style="display: none" class="lsit"><a href="'+path+'?id='+n.id+'" >123</a></td>';
+                    // html+='<a style="display: none" id="aa" th:href="@{/lawCase/detail(id='+n.id+')}" >123</a>';
+                    html+='</tr>'
+                    $("#tb").html(html)
+                    $("#lawcaseOwnerName").html('');
+                    $("#cardBank").html("");
+                    $("#cardId").html("");
+                    $("#state option:first").prop("selected", "selected");
+                    $("#minMoney").html("");
+                    $("#maxMoney").html("");
+
+
+
+
+
+
+
+
+
+
+                })
+            }
+        })
+    }
+    function query(obj) {
+
+        var deptId=$(obj).val();
+        html= '<option value=""></option>'
+        $.ajax({
+            url:[[${#request.getContextPath}]]+"/user/queryUserByDeptId",
+            type:"get",
+            data:{
+                "deptId":deptId
+            },
+            dataType:"json",
+            success:function (data) {
+                $.each(data,function (i,n) {
+                    html+='<option value="'+n.id+'">'+n.name+'</option>>'
+                })
+                $("#create-owner").html(html)
+            }
+        })
+    }
+    function query2(obj) {
+
+        var deptId=$(obj).val();
+        html= ''
+        $.ajax({
+            url:[[${#request.getContextPath}]]+"/user/queryUserByDeptId",
+            type:"get",
+            data:{
+                "deptId":deptId
+            },
+            dataType:"json",
+            success:function (data) {
+                $.each(data,function (i,n) {
+                    html+='<option value="'+n.id+'">'+n.name+'</option>>'
+                })
+                $("#editLawCaseOwner-owner").html(html)
+            }
+        })
+    }
+
+</script>
+<body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div>
+    <div style="position: relative; left: 10px; top: -10px;">
+        <div class="page-header">
+            <h3 style="display: inline">我的案件</h3>&nbsp;&nbsp;<span id="count" th:text="'共'+${lawcaseCount}+'条案件'"></span>
+        </div>
+    </div>
+</div>
+
+
+<div style="position: relative; top: -20px; left: 0px; width: 100%; height: 100%;">
+
+    <div style="width: 100%; position: absolute;top: 5px; left: 10px;">
+
+        <div class="btn-toolbar" role="toolbar" style="height: 80px;">
+            <form th:action="@{/lawCase/query}" class="form-inline" role="form" style="position: relative;top: 8%; left: 5px;" id="queryFrom">
+
+                <div class="form-group" style="width: 150px">
+                    <div class="input-group">
+                        <div class="input-group-addon">债务人</div>
+                        <input class="form-control" type="text" id="lawcaseOwnerName">
+                    </div>
+                </div>
+
+                <div class="form-group" style="width: 160px;">
+                    <div class="input-group">
+                        <div class="input-group-addon">委案银行</div>
+                        <input class="form-control" type="text" id="cardBank">
+                    </div>
+                </div>
+
+                <div class="form-group" style="width: 200px">
+                    <div class="input-group">
+                        <div class="input-group-addon">逾期账户</div>
+                        <input class="form-control" type="text" id="cardId">
+                    </div>
+                </div>
+                <div class="form-group" style="width: 150px">
+                    <div class="input-group">
+                        <div class="input-group-addon">最小金额</div>
+                        <input class="form-control" type="text" id="minMoney">
+                    </div>
+                </div>
+                <div class="form-group" style="width: 150px">
+                    <div class="input-group">
+                        <div class="input-group-addon">最大金额</div>
+                        <input class="form-control" type="text" id="maxMoney">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-addon">案件状态</div>
+                        <select class="form-control" id="state">
+                            <option></option>
+                            <option>跟进</option>
+                            <option>查找</option>
+                            <option>中人</option>
+                            <option>谈判</option>
+                            <option>约定</option>
+                            <option>放弃</option>
+                        </select>
+                    </div>
+
+                </div>
+                <div class="form-group" style="width: 150px;">
+                    <div class="input-group">
+                        <div class="input-group-addon">未跟进</div>
+                        <select class="form-control" id="notCallTime">
+                            <option></option>
+                            <option value="3">三天以上</option>
+                            <option value="5">五天以上</option>
+                            <option value="7">七天以上</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <button type="button" class="btn btn-default" onclick="queryLawcase()">查询</button>
+
+            </form>
+
+
+
+
+
+
+
+        </div>
+        <div style="position: relative;top: -30px;">
+            <table  class="table table-condensed table-bordered" style="text-align: center;margin-bottom: 50px">
+                <thead>
+                <tr style="text-align: center">
+                    <th style="width: 35px;text-align: center">
+                        <input name="checkbox" type="checkbox" value="checkbox" id="selectAll" />
+                    </th>
+                    <th style="text-align: center;width: 60px">
+                        条目
+                    </th>
+                    <th style="text-align: center;width: 100px">
+                        债务人
+                    </th>
+                    <th style="text-align: center;width: 280px">
+                        逾期账号
+                    </th>
+                    <th style="text-align: center;width: 150px">
+                        欠款金额
+                    </th>
+                    <th style="text-align: center">
+                        最大减免额度
+                    </th>
+                    <th style="text-align: center">
+                        委案银行
+                    </th>
+                    <th style="text-align: center">
+                        案件状态
+                    </th>
+                </tr>
+                </thead>
+                <tbody id="tb" >
+
+
+                </tbody>
+            </table>
+            <!--      <table class="table table-hover">-->
+            <!--        <thead>-->
+            <!--        <tr style="color: #B3B3B3;">-->
+            <!--          <td><input type="checkbox" /></td>-->
+            <!--          <td>名称</td>-->
+            <!--          <td>公司</td>-->
+            <!--          <td>公司座机</td>-->
+            <!--          <td>手机</td>-->
+            <!--          <td>线索来源</td>-->
+            <!--          <td>所有者</td>-->
+            <!--          <td>线索状态</td>-->
+            <!--        </tr>-->
+            <!--        </thead>-->
+            <!--        <tbody id="tb">-->
+
+            <!--        <tr class="active">-->
+            <!--          <td><input type="checkbox" /></td>-->
+            <!--          <td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.jsp';">李四先生</a></td>-->
+            <!--          <td>动力节点</td>-->
+            <!--          <td>010-84846003</td>-->
+            <!--          <td>12345678901</td>-->
+            <!--          <td>广告</td>-->
+            <!--          <td>zhangsan</td>-->
+            <!--          <td>已联系</td>-->
+            <!--        </tr>-->
+            <!--        </tbody>-->
+            <!--      </table>-->
+        </div>
+
+
+        <div id="page" style="position: absolute;top: 395px;left: 385px"></div>
+
+
+    </div>
+
+</div>
+</body>
+</html>
