@@ -1,0 +1,12 @@
+# Project exclude paths
+/4-27-dubbo-consumer/target/
+/4-27-dubbo-interface/target/
+/4-27-dubbo-provider/target/
+/crm/target/
+/dubbo-customer/target/
+/dubbo-provider/target/
+/out/
+/shop/WebRoot/WEB-INF/classes/
+/springMVC/target/
+/springTest/target/
+/ssm/target/
